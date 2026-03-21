@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Check - Decode the Robot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Navbar -->
+    <nav class="p-6 flex justify-between items-center max-w-6xl mx-auto">
+        <h1 class="text-2xl font-black text-slate-800 tracking-tighter">CV<span class="text-blue-600">CHECK</span></h1>
+        <div class="text-sm font-bold text-slate-500 bg-slate-200 px-3 py-1 rounded-full">Ksh 20 Analysis</div>
+    </nav>
+
+    <main class="max-w-2xl mx-auto px-4 py-10">
+        <!-- Step 1: Input -->
+        <div id="step-1" class="space-y-6">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-black text-slate-900 mb-2">Beat the ATS Robot.</h2>
+                <p class="text-slate-500">Paste your details below to see your match score.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200">
+                <textarea id="jd" class="w-full p-4 border-none bg-slate-50 rounded-xl mb-4 focus:ring-2 focus:ring-blue-500 h-32" placeholder="Paste Job Description..."></textarea>
+                <textarea id="cv" class="w-full p-4 border-none bg-slate-50 rounded-xl mb-6 focus:ring-2 focus:ring-blue-500 h-48" placeholder="Paste your CV text..."></textarea>
+                
+                <button onclick="runAnalysis()" id="main-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-xl transition-all shadow-lg shadow-blue-200 uppercase tracking-widest">
+                    Check Match (FREE)
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Results & Paywall -->
+        <div id="step-2" class="hidden animate-in fade-in duration-500">
+            <div class="bg-white p-8 rounded-3xl shadow-2xl border border-slate-100 text-center">
+                <p class="text-sm font-bold uppercase text-slate-400 tracking-widest">Match Score</p>
+                <h3 id="score" class="text-8xl font-black my-4">0%</h3>
+                
+                <div class="flex gap-4 mb-8">
+                    <div class="flex-1 bg-slate-50 p-4 rounded-2xl">
+                        <p id="k-count" class="text-2xl font-black text-slate-800">0</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Missing Skills</p>
+                    </div>
+                    <div class="flex-1 bg-slate-50 p-4 rounded-2xl">
+                        <p id="e-count" class="text-2xl font-black text-slate-800">0</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase">System Errors</p>
+                    </div>
+                </div>
+
+                <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl">
+                    <p class="text-emerald-800 font-bold mb-4 italic">"Your CV is missing critical keywords. HR will likely skip you."</p>
+                    <button onclick="pay(60)" class="w-full bg-emerald-600 text-white font-black py-4 rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-100">
+                        Fix My CV for 60/-
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Report Area -->
+        <div id="final-report" class="hidden mt-10 bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
+            <h4 class="font-black text-xl mb-6 text-slate-800">Your Optimization Blueprint</h4>
+            <div id="report-body" class="space-y-6 text-slate-600 text-sm leading-relaxed"></div>
+        </div>
+    </main>
+
+    <script>
+        let globalJD = "";
+        let globalCV = "";
+
+        async function runAnalysis() {
+            globalJD = document.getElementById('jd').value;
+            globalCV = document.getElementById('cv').value;
+            const btn = document.getElementById('main-btn');
+
+            if(!globalJD || !globalCV) return alert("Please fill both sections");
+
+            btn.innerText = "Robot Scanning...";
+            btn.disabled = true;
+
+            const res = await fetch('/analyze', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({jd: globalJD, cv: globalCV})
+            });
+            const data = await res.json();
+
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            
+            document.getElementById('score').innerText = data.score + "%";
+            document.getElementById('k-count').innerText = data.missing_count;
+            document.getElementById('e-count').innerText = data.errors;
+        }
+
+        async function pay(amt) {
+            const phone = prompt("Enter M-Pesa Number:");
+            if(!phone) return;
+
+            // Trigger STK Push (Mock for now)
+            alert("Check phone for STK Push...");
+
+            const res = await fetch('/generate-docs', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({jd: globalJD, cv: globalCV})
+            });
+            const data = await res.json();
+
+            document.getElementById('final-report').classList.remove('hidden');
+            document.getElementById('report-body').innerHTML = `
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <b class="text-blue-600 uppercase text-xs">Keywords to Add:</b>
+                    <p class="mt-2 font-bold">${data.keywords.join(", ")}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <b class="text-blue-600 uppercase text-xs">New Professional Summary:</b>
+                    <p class="mt-2">${data.summary}</p>
+                </div>
+                <div class="p-4 bg-slate-50 rounded-xl">
+                    <b class="text-blue-600 uppercase text-xs">Tailored Cover Letter:</b>
+                    <pre class="mt-4 whitespace-pre-wrap font-sans text-xs bg-white p-4 border rounded italic text-slate-500">${data.cover_letter}</pre>
+                </div>
+            `;
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+    </script>
+</body>
+</html>
