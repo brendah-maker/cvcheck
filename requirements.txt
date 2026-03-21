@@ -1,0 +1,8 @@
+flask
+groq
+pdfplumber
+requests
+beautifulsoup4
+fpdf
+python-dotenv
+gunicorn
