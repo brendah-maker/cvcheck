@@ -3,107 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Check | Beat the ATS Robot</title>
+    <title>CV Check | Get Shortlisted</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        .navy-bg { background-color: #0f172a; }
+        .yellow-text { color: #facc15; }
+        .yellow-bg { background-color: #facc15; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="text-slate-200">
 
-    <nav class="p-6 max-w-5xl mx-auto flex justify-between items-center">
-        <h1 class="text-2xl font-extrabold tracking-tight text-blue-600">CVCHECK.ke</h1>
-        <span class="text-xs font-bold bg-blue-100 text-blue-700 px-3 py-1 rounded-full uppercase">Beta</span>
+    <!-- Navbar -->
+    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
+        <h1 class="text-2xl font-extrabold tracking-tighter text-white">CV<span class="yellow-text">CHECK</span></h1>
+        <div class="hidden md:block text-xs font-bold bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
+            AI-POWERED RECRUITMENT INTEL
+        </div>
     </nav>
 
-    <main class="max-w-xl mx-auto px-4 py-8">
-        <!-- STEP 1: INPUT -->
-        <div id="step-1" class="space-y-8">
-            <div class="text-center">
-                <h2 class="text-4xl font-extrabold mb-3 leading-tight">Land your dream job.</h2>
-                <p class="text-slate-500">We analyze your CV against the job description using AI.</p>
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        
+        <!-- STEP 1: HERO & INPUT -->
+        <div id="step-1" class="space-y-12">
+            <div class="text-center space-y-4">
+                <h2 class="text-5xl md:text-6xl font-black text-white leading-tight">
+                    Stop Guessing. <br> <span class="yellow-text">Start Getting Hired.</span>
+                </h2>
+                <p class="text-slate-400 text-lg max-w-xl mx-auto">
+                    We decode the ATS robot and tell you exactly why your CV is being rejected. 
+                </p>
             </div>
 
-            <form id="upload-form" class="space-y-6 bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
-                <div>
-                    <label class="block text-sm font-bold mb-2 uppercase text-slate-400">1. The Job Link or Text</label>
-                    <input type="url" name="job_url" id="job_url" placeholder="Paste LinkedIn/Indeed Link..." 
-                           class="w-full p-4 bg-slate-50 border-none rounded-2xl mb-2 focus:ring-2 focus:ring-blue-500">
-                    <textarea name="jd_text" id="jd_text" placeholder="...or paste the job description text here" 
-                              class="w-full p-4 bg-slate-50 border-none rounded-2xl h-24 focus:ring-2 focus:ring-blue-500"></textarea>
+            <form id="upload-form" class="grid md:grid-cols-2 gap-8">
+                <!-- Job Description Column -->
+                <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 backdrop-blur-sm">
+                    <label class="block text-xs font-black yellow-text uppercase tracking-widest mb-4">The Job Details</label>
+                    <input type="url" name="job_url" id="job_url" placeholder="Paste Job Link (LinkedIn/Indeed)" 
+                           class="w-full p-4 bg-slate-800 border-none rounded-2xl mb-4 focus:ring-2 focus:ring-yellow-500 text-white placeholder-slate-500 text-sm">
+                    <div class="text-center text-xs text-slate-600 font-bold mb-4">-- OR PASTE TEXT --</div>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste Job Description text..." 
+                              class="w-full p-4 bg-slate-800 border-none rounded-2xl h-48 focus:ring-2 focus:ring-yellow-500 text-white placeholder-slate-500 text-sm"></textarea>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-bold mb-2 uppercase text-slate-400">2. Your CV (PDF or Text)</label>
-                    <div class="relative border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-blue-400 transition-colors bg-slate-50">
-                        <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <p id="file-label" class="text-blue-600 font-bold">Click to upload CV (PDF)</p>
+                <!-- CV Column -->
+                <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800 backdrop-blur-sm">
+                    <label class="block text-xs font-black yellow-text uppercase tracking-widest mb-4">Your CV Details</label>
+                    <div class="relative group">
+                        <div class="border-2 border-dashed border-slate-700 rounded-2xl p-6 text-center group-hover:border-yellow-500 transition-all bg-slate-800/50">
+                            <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                            <p id="file-label" class="text-white font-bold text-sm">Upload CV (PDF)</p>
+                            <p class="text-xs text-slate-500 mt-1 uppercase">Click to browse</p>
+                        </div>
                     </div>
-                    <textarea name="cv_text" id="cv_text" placeholder="...or paste your CV text here" 
-                              class="w-full p-4 bg-slate-50 border-none rounded-2xl h-32 mt-4 focus:ring-2 focus:ring-blue-500"></textarea>
+                    <div class="text-center text-xs text-slate-600 font-bold my-4">-- OR PASTE TEXT --</div>
+                    <textarea name="cv_text" id="cv_text" placeholder="Paste your CV text here..." 
+                              class="w-full p-4 bg-slate-800 border-none rounded-2xl h-40 focus:ring-2 focus:ring-yellow-500 text-white placeholder-slate-500 text-sm"></textarea>
                 </div>
 
-                <button type="button" onclick="handleAnalysis()" id="analyze-btn" class="w-full bg-blue-600 text-white font-extrabold py-5 rounded-2xl shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all uppercase tracking-widest">
-                    Run AI Check (Free)
-                </button>
+                <div class="md:col-span-2">
+                    <button type="button" onclick="handleAnalysis()" id="analyze-btn" 
+                            class="w-full yellow-bg text-slate-900 font-black py-6 rounded-2xl shadow-2xl shadow-yellow-500/20 hover:scale-[1.02] active:scale-95 transition-all uppercase tracking-widest text-lg">
+                        Run Free AI Match Check
+                    </button>
+                </div>
             </form>
         </div>
 
-        <!-- STEP 2: RESULTS -->
+        <!-- STEP 2: RESULTS (Hidden) -->
         <div id="step-2" class="hidden animate-in fade-in zoom-in duration-500">
-            <div class="bg-white p-10 rounded-[3rem] shadow-2xl border border-slate-100 text-center">
-                <p class="text-xs font-black uppercase text-slate-400 tracking-widest mb-4">Match Score</p>
-                <h3 id="score" class="text-9xl font-black mb-8 tracking-tighter">0%</h3>
-                
-                <div class="flex gap-4 mb-10">
-                    <div class="flex-1 bg-red-50 p-6 rounded-3xl">
-                        <p id="k-count" class="text-3xl font-black text-red-600">0</p>
-                        <p class="text-[10px] font-bold text-red-400 uppercase">Missing Skills</p>
-                    </div>
-                    <div class="flex-1 bg-orange-50 p-6 rounded-3xl">
-                        <p id="e-count" class="text-3xl font-black text-orange-600">0</p>
-                        <p class="text-[10px] font-bold text-orange-400 uppercase">System Errors</p>
-                    </div>
+            <div class="bg-white rounded-[3rem] overflow-hidden shadow-2xl">
+                <div class="navy-bg p-12 text-center border-b border-slate-800">
+                    <p class="text-xs font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
+                    <h3 id="score" class="text-9xl font-black text-white tracking-tighter">0%</h3>
+                    <p id="verdict" class="text-slate-400 mt-4 italic">Analyzing your chances...</p>
                 </div>
-
-                <div class="bg-blue-600 p-8 rounded-[2rem] text-white">
-                    <p class="font-bold mb-6 text-lg">Your CV is missing critical keywords. HR will likely skip you.</p>
-                    <button onclick="generateDocs()" id="pay-btn" class="w-full bg-white text-blue-600 font-black py-5 rounded-2xl hover:bg-slate-100 shadow-xl uppercase tracking-tighter">
-                        Get Optimized CV & Letter (Ksh 60)
-                    </button>
+                
+                <div class="p-12 grid grid-cols-2 gap-6 bg-white">
+                    <div class="bg-slate-50 p-8 rounded-[2rem] text-center">
+                        <p id="k-count" class="text-4xl font-black text-slate-900">0</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Missing Skills</p>
+                    </div>
+                    <div class="bg-slate-50 p-8 rounded-[2rem] text-center">
+                        <p id="e-count" class="text-4xl font-black text-slate-900">0</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Formatting Errors</p>
+                    </div>
+                    
+                    <div class="col-span-2 bg-yellow-50 border-2 border-yellow-200 p-8 rounded-[2.5rem] mt-4">
+                        <p class="text-slate-900 font-bold mb-6 text-center">Recruiters spend 6 seconds on a CV. Yours is currently being filtered out.</p>
+                        <button onclick="generateDocs()" id="pay-btn" class="w-full navy-bg text-white font-black py-5 rounded-2xl hover:bg-slate-800 transition-all uppercase tracking-widest">
+                            Fix Everything for Ksh 60
+                        </button>
+                        <p class="text-[10px] text-center text-slate-400 mt-4 uppercase font-bold">Includes: Missing Keywords, New Summary & Cover Letter</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 3: FINAL REPORT -->
-        <div id="final-report" class="hidden mt-10 space-y-6">
-            <div class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200">
-                <h4 class="font-black text-xl mb-6 flex items-center gap-2">
-                    <span class="bg-green-100 text-green-600 p-2 rounded-lg">✓</span> Optimization Success
-                </h4>
-                <div id="report-body" class="space-y-6 text-slate-600">
-                    <!-- Data injected here -->
+        <!-- STEP 3: FINAL REPORT (Hidden) -->
+        <div id="final-report" class="hidden mt-12 space-y-8 animate-in slide-in-from-bottom-10 duration-700">
+            <div class="bg-slate-900 p-10 rounded-[3rem] border border-slate-800 shadow-2xl">
+                <div class="flex items-center gap-4 mb-10">
+                    <div class="w-12 h-12 yellow-bg rounded-2xl flex items-center justify-center text-slate-900 font-black">✓</div>
+                    <h4 class="text-2xl font-black text-white uppercase tracking-tight">Optimization Report</h4>
+                </div>
+                
+                <div id="report-body" class="space-y-8">
+                    <!-- Data Injected Here -->
                 </div>
             </div>
+            
+            <button onclick="window.location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-xs tracking-widest hover:text-white transition-colors">
+                ← Check another Job
+            </button>
         </div>
     </main>
 
     <script>
-        let rawJD = ""; 
-        let rawCV = "";
+        let rawJD = ""; let rawCV = "";
 
         document.getElementById('cv_file').onchange = function() {
-            document.getElementById('file-label').innerText = "Selected: " + this.files[0].name;
+            document.getElementById('file-label').innerText = "CV Attached: " + this.files[0].name;
+            document.getElementById('cv_text').placeholder = "Using uploaded PDF file...";
+            document.getElementById('cv_text').disabled = true;
         };
 
         async function handleAnalysis() {
             const btn = document.getElementById('analyze-btn');
-            const formData = new FormData(document.getElementById('upload-form'));
+            const form = document.getElementById('upload-form');
+            const formData = new FormData(form);
             
-            // Save raw text for the 60-bob step
             rawJD = document.getElementById('jd_text').value || document.getElementById('job_url').value;
             rawCV = document.getElementById('cv_text').value;
 
-            btn.innerText = "Analyzing CV...";
+            btn.innerText = "ROBOT SCANNING...";
             btn.disabled = true;
 
             try {
@@ -112,43 +146,51 @@
                 
                 document.getElementById('step-1').classList.add('hidden');
                 document.getElementById('step-2').classList.remove('hidden');
+                
                 document.getElementById('score').innerText = data.score + "%";
                 document.getElementById('k-count').innerText = data.missing_count;
                 document.getElementById('e-count').innerText = data.errors;
-            } catch (e) { alert("Error analyzing. Please paste text directly."); }
+                document.getElementById('verdict').innerText = data.verdict;
+                
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (e) { alert("Analysis failed. Try pasting text directly."); btn.innerText = "TRY AGAIN"; btn.disabled = false; }
         }
 
         async function generateDocs() {
-            const phone = prompt("Enter M-Pesa Number (07...):");
+            const phone = prompt("Enter M-Pesa Phone (07...):");
             if(!phone) return;
 
             const payBtn = document.getElementById('pay-btn');
-            payBtn.innerText = "Generating Documents...";
-            
-            const res = await fetch('/generate-docs', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jd: rawJD, cv: rawCV})
-            });
-            const data = await res.json();
+            payBtn.innerText = "GENERATING DOCUMENTS...";
+            payBtn.disabled = true;
 
-            document.getElementById('step-2').classList.add('opacity-50', 'pointer-events-none');
-            document.getElementById('final-report').classList.remove('hidden');
-            document.getElementById('report-body').innerHTML = `
-                <div class="p-5 bg-slate-50 rounded-2xl">
-                    <b class="text-blue-600 text-xs uppercase tracking-widest">Keywords to Add</b>
-                    <p class="mt-2 font-bold text-slate-800">${data.keywords.join(", ")}</p>
-                </div>
-                <div class="p-5 bg-slate-50 rounded-2xl">
-                    <b class="text-blue-600 text-xs uppercase tracking-widest">Professional Summary</b>
-                    <p class="mt-2 text-slate-700">${data.summary}</p>
-                </div>
-                <div class="p-5 bg-slate-50 rounded-2xl">
-                    <b class="text-blue-600 text-xs uppercase tracking-widest">Tailored Cover Letter</b>
-                    <pre class="mt-4 whitespace-pre-wrap font-sans text-xs bg-white p-6 border rounded-2xl italic shadow-inner">${data.cover_letter}</pre>
-                </div>
-            `;
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            try {
+                const res = await fetch('/generate-docs', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({jd: rawJD, cv: rawCV})
+                });
+                const data = await res.json();
+
+                document.getElementById('step-2').classList.add('opacity-40', 'pointer-events-none');
+                document.getElementById('final-report').classList.remove('hidden');
+                
+                document.getElementById('report-body').innerHTML = `
+                    <div class="p-8 bg-slate-800/50 rounded-3xl border border-slate-700">
+                        <b class="text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em] block mb-4">Keywords to Insert</b>
+                        <p class="text-white font-bold text-xl leading-relaxed">${data.keywords.join(" • ")}</p>
+                    </div>
+                    <div class="p-8 bg-slate-800/50 rounded-3xl border border-slate-700">
+                        <b class="text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em] block mb-4">New Professional Summary</b>
+                        <p class="text-slate-300 leading-relaxed">${data.summary}</p>
+                    </div>
+                    <div class="p-8 bg-white rounded-3xl">
+                        <b class="text-blue-600 text-[10px] font-black uppercase tracking-[0.2em] block mb-4">Optimized Cover Letter</b>
+                        <pre class="whitespace-pre-wrap font-sans text-slate-700 text-sm leading-relaxed">${data.cover_letter}</pre>
+                    </div>
+                `;
+                window.scrollTo({ top: document.getElementById('final-report').offsetTop, behavior: 'smooth' });
+            } catch (e) { alert("Error generating docs."); payBtn.innerText = "RETRY FIX"; payBtn.disabled = false; }
         }
     </script>
 </body>
