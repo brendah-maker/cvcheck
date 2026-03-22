@@ -6,12 +6,8 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
-# This part is more robust
-api_key = os.environ.get("GROQ_API_KEY")
-if not api_key:
-    print("CRITICAL ERROR: GROQ_API_KEY not found in environment variables!")
-
-client = Groq(api_key=api_key)
+# Initialize Groq with the API key from environment
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def extract_text_from_pdf(file):
     try:
@@ -44,28 +40,29 @@ def analyze():
         return jsonify({"score": 0, "verdict": "Please provide both CV and JD"}), 400
 
     try:
-        # We use llama-3.1-8b-instant (the most stable Groq model)
+        # UPDATED TO LLAMA 3.1
         response = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "You are a recruiter. Respond ONLY with a JSON object. Do not explain."},
-                {"role": "user", "content": f"Analyze match between CV: {cv_text[:2000]} and JD: {jd_text[:2000]}. Return JSON: {{'score': 70, 'missing_count': 2, 'errors': 1, 'verdict': 'summary'}}"}
+                {"role": "system", "content": "You are a recruitment bot. Respond ONLY with a JSON object."},
+                {"role": "user", "content": f"Analyze match between CV: {cv_text[:2500]} and JD: {jd_text[:2000]}. Return JSON: {{'score': 70, 'missing_count': 2, 'errors': 1, 'verdict': 'short punchy summary'}}"}
             ],
             model="llama-3.1-8b-instant", 
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
-        print(f"Llama Analysis Error: {str(e)}") # This will show the real error in Render logs
-        return jsonify({"score": 0, "missing_count": 0, "errors": 0, "verdict": f"AI Error: {str(e)[:50]}"}), 500
+        print(f"Llama Analysis Error: {str(e)}")
+        return jsonify({"score": 0, "missing_count": 0, "errors": 0, "verdict": "AI Match Failed"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
     data = request.json
     try:
+        # UPDATED TO LLAMA 3.1
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": "Return ONLY JSON."},
-                {"role": "user", "content": f"Based on JD: {data.get('jd')[:1000]} and CV: {data.get('cv')[:1000]}, provide keywords, summary, and cover_letter in JSON."}
+                {"role": "user", "content": f"Provide keywords, summary, and cover_letter for this role based on JD: {data.get('jd')[:1500]} and CV: {data.get('cv')[:2000]}"}
             ],
             model="llama-3.1-70b-versatile",
             response_format={"type": "json_object"}
@@ -73,7 +70,7 @@ def generate_docs():
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
         print(f"Llama Docs Error: {str(e)}")
-        return jsonify({"error": "Failed to generate"}), 500
+        return jsonify({"error": "Failed to generate docs"}), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
