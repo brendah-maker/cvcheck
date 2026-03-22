@@ -6,7 +6,7 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
-# Initialize Groq
+# Initialize Groq - Ensure GROQ_API_KEY is in your Render/Vercel Env Variables
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def extract_text_from_pdf(file):
@@ -17,7 +17,7 @@ def extract_text_from_pdf(file):
             content = page.extract_text()
             if content: text += content
         return text
-    except Exception as e:
+    except Exception:
         return ""
 
 @app.route('/')
@@ -36,17 +36,34 @@ def analyze():
             if pdf_text: cv_text = pdf_text
 
     try:
+        # We ask Llama for a "Diagnostic" teaser to build value
+        prompt = f"""
+        Analyze match between CV and JD.
+        CV: {cv_text[:2500]}
+        JD: {jd_text[:2000]}
+        
+        Return ONLY a JSON object:
+        {{
+            "score": 45,
+            "missing_count": 8,
+            "errors": 2,
+            "verdict": "High risk of rejection.",
+            "visibility": "INVISIBLE",
+            "gap_teaser": "You are missing 5 technical keywords related to this industry.",
+            "format_teaser": "Your header layout is confusing the ATS robot."
+        }}
+        """
         response = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "You are an ATS. Return ONLY JSON: {\"score\": number, \"missing_count\": number, \"errors\": number, \"verdict\": \"string\"}"},
-                {"role": "user", "content": f"Analyze: CV: {cv_text[:2000]} JD: {jd_text[:2000]}"}
+                {"role": "system", "content": "You are an ATS Recruiter. Output ONLY JSON."},
+                {"role": "user", "content": prompt}
             ],
             model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
-        return jsonify({"score": 0, "missing_count": 0, "errors": 0, "verdict": "AI Analysis failed"}), 500
+        return jsonify({"score": 0, "verdict": "AI Analysis failed"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
@@ -54,7 +71,7 @@ def generate_docs():
     try:
         response = client.chat.completions.create(
             messages=[
-                {"role": "system", "content": "Return ONLY JSON: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"},
+                {"role": "system", "content": "You are a Career Expert. Output ONLY JSON: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"},
                 {"role": "user", "content": f"Optimize CV for JD: {data.get('jd')[:1500]} CV: {data.get('cv')[:2000]}"}
             ],
             model="llama-3.3-70b-versatile",
