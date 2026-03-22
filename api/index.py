@@ -99,3 +99,17 @@ app = Flask(__name__, template_folder='../templates')
 # ... (your @app.route functions) ...
 
 # IMPORTANT: Remove app.run(). Vercel handles the execution.
+
+
+import os
+from flask import Flask, request, jsonify, render_template
+# ... (your other imports)
+
+# Tell Flask where to find the HTML file
+app = Flask(__name__, template_folder='../templates')
+
+# ... (your routes: @app.route('/') and @app.route('/analyze') etc)
+
+# Add this at the very bottom so Render can start it
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
