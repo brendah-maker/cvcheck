@@ -1,8 +1,7 @@
-from flask import Flask, request, jsonify, render_template
 import os
-import io
-import PyPDF2
+from flask import Flask, request, jsonify, render_template
 from groq import Groq
+import PyPDF2
 
 app = Flask(__name__, template_folder='../templates')
 
