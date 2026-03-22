@@ -1,8 +1,3 @@
-flask
-groq
-pdfplumber
-requests
-beautifulsoup4
-fpdf
-python-dotenv
-gunicorn
+Flask==3.0.0
+groq==0.5.0
+PyPDF2==3.0.1
