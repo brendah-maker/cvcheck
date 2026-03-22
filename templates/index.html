@@ -3,96 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Check | Stop Being Rejected</title>
+    <title>CV Check | Beat the Robot</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IntaSend SDK -->
+    <script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/build/intasend-inline.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; scroll-behavior: smooth; }
         .navy-bg { background-color: #0f172a; }
         .yellow-text { color: #facc15; }
         .yellow-bg { background-color: #facc15; }
-        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(51, 65, 85, 0.5); backdrop-filter: blur(10px); }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body class="text-slate-200">
 
     <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
-        <h1 class="text-2xl font-extrabold tracking-tighter text-white">CV<span class="yellow-text">CHECK</span></h1>
-        <div class="hidden md:block text-[10px] font-black bg-slate-800 px-4 py-2 rounded-full border border-slate-700 uppercase tracking-widest">
-            AI-Powered Recruitment Intel
-        </div>
+        <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
+        <div class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-full border border-slate-700 tracking-widest text-slate-400">LLAMA-3 POWERED</div>
     </nav>
 
     <main class="max-w-4xl mx-auto px-6 py-12">
         
-        <!-- PHASE 1: LANDING -->
-        <div id="step-1" class="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <!-- PHASE 1: THE LANDING -->
+        <div id="step-1" class="space-y-12">
             <div class="text-center space-y-4">
-                <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">
-                    Is a Robot <br> <span class="yellow-text">rejecting your CV?</span>
-                </h2>
-                <p class="text-slate-400 text-lg max-w-xl mx-auto">Find out your ATS Match Score in 30 seconds for free.</p>
+                <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
+                <p class="text-slate-400 text-lg">Find your Match Score in 30 seconds for free.</p>
             </div>
 
             <form id="upload-form" class="grid md:grid-cols-2 gap-8">
-                <div class="glass-card p-8 rounded-[2rem]">
-                    <label class="block text-[10px] font-black yellow-text uppercase tracking-[0.2em] mb-4">The Job Description</label>
-                    <textarea name="jd_text" id="jd_text" placeholder="Paste the full job requirements here..." class="w-full p-4 bg-slate-800 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste the job description here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
                 </div>
 
-                <div class="glass-card p-8 rounded-[2rem]">
-                    <label class="block text-[10px] font-black yellow-text uppercase tracking-[0.2em] mb-4">Your CV Details</label>
-                    <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-slate-200">
-                    <div class="text-center text-[10px] text-slate-600 font-bold mb-4 uppercase tracking-widest">-- OR PASTE TEXT --</div>
-                    <textarea name="cv_text" id="cv_text" placeholder="Paste your CV content here..." class="w-full p-4 bg-slate-800 border-none rounded-2xl h-40 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
+                    <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
+                    <textarea name="cv_text" id="cv_text" placeholder="Or paste CV text here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
                 </div>
 
-                <button type="button" onclick="startAnalysis()" id="analyze-btn" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-2xl uppercase tracking-[0.2em] text-lg shadow-2xl shadow-yellow-500/20 hover:scale-[1.01] active:scale-95 transition-all">
+                <button type="button" onclick="startAnalysis()" id="analyze-btn" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg shadow-2xl shadow-yellow-500/20 hover:scale-[1.01] transition-all">
                     Check My Match Score (FREE)
                 </button>
             </form>
         </div>
 
-        <!-- PHASE 2: LOADING -->
-        <div id="loading-screen" class="hidden text-center py-24 space-y-8 animate-in fade-in duration-500">
-            <div class="inline-block animate-spin w-20 h-20 border-[6px] border-yellow-500 border-t-transparent rounded-full"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest animate-pulse">Analyzing Requirements...</p>
+        <!-- PHASE 2: LOADING SCREEN -->
+        <div id="loading-screen" class="hidden text-center py-20 space-y-8 animate-pulse">
+            <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Analyzing Requirements...</p>
         </div>
 
-        <!-- PHASE 2/3: TEASER & UPSELL -->
+        <!-- PHASE 3: THE TEASER & UPSELL -->
         <div id="step-2" class="hidden animate-in zoom-in duration-500">
-            <div class="bg-white rounded-[3rem] overflow-hidden shadow-2xl">
-                <div class="navy-bg p-12 text-center border-b border-slate-800">
+            <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
+                <div class="navy-bg p-16 text-center">
                     <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
                     <h3 id="score" class="text-9xl font-black text-white tracking-tighter">0%</h3>
                     <p id="verdict" class="text-slate-400 mt-6 italic text-lg"></p>
                 </div>
                 
-                <div class="p-8 bg-white space-y-8">
+                <div class="p-10 bg-white space-y-8">
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-red-50 p-6 rounded-3xl text-center border border-red-100">
+                        <div class="bg-red-50 p-8 rounded-[2rem] text-center border border-red-100">
                             <p id="k-count" class="text-4xl font-black text-red-600">0</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Critical Gaps</p>
                         </div>
-                        <div class="bg-orange-50 p-6 rounded-3xl text-center border border-orange-100">
+                        <div class="bg-orange-50 p-8 rounded-[2rem] text-center border border-orange-100">
                             <p id="e-count" class="text-4xl font-black text-orange-600">0</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Format Errors</p>
                         </div>
                     </div>
 
-                    <div class="bg-slate-900 p-8 rounded-[2.5rem] space-y-6">
-                        <p class="text-white text-center font-bold">Recruiters spend 6 seconds per CV. You are being filtered out.</p>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <button onclick="pay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all">
-                                <b class="block text-white text-lg">Diagnostic</b>
-                                <span class="text-slate-400 text-[10px] uppercase font-bold tracking-tighter">See Missing Keywords</span>
-                                <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
+                    <div class="bg-slate-900 p-10 rounded-[3rem] space-y-6">
+                        <p class="text-white text-center font-bold">Only candidates with 80%+ scores usually get called. Fix yours now.</p>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <button onclick="handlePayment(20, 'Diagnostic')" class="p-8 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all group">
+                                <b class="block text-white text-xl">Diagnostic</b>
+                                <span class="text-slate-400 text-xs">Reveal all missing keywords.</span>
+                                <b class="block mt-4 text-2xl yellow-text">Ksh 20</b>
                             </button>
-                            <button onclick="pay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/5 hover:bg-yellow-500/10 transition-all relative">
-                                <span class="absolute -top-3 right-4 bg-yellow-500 text-navy-bg text-[8px] font-black px-2 py-1 rounded">BEST VALUE</span>
-                                <b class="block text-white text-lg">Pro Bundle</b>
-                                <span class="text-slate-400 text-[10px] uppercase font-bold">Full CV & Cover Letter</span>
-                                <b class="block mt-4 text-xl yellow-text">Ksh 60</b>
+                            <button onclick="handlePayment(60, 'Pro Bundle')" class="p-8 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/5 hover:bg-yellow-500/10 transition-all relative">
+                                <span class="absolute -top-3 right-6 bg-yellow-500 text-navy-bg text-[10px] font-black px-3 py-1 rounded-full uppercase">Best Choice</span>
+                                <b class="block text-white text-xl">Pro Bundle</b>
+                                <span class="text-slate-400 text-xs">AI CV, Cover Letter & Prep.</span>
+                                <b class="block mt-4 text-2xl yellow-text">Ksh 60</b>
                             </button>
                         </div>
                     </div>
@@ -101,9 +98,9 @@
         </div>
 
         <!-- PHASE 4: FINAL DELIVERY -->
-        <div id="final-report" class="hidden mt-12 space-y-6 pb-24 animate-in slide-in-from-bottom-10 duration-1000">
-            <div class="glass-card p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
-            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest">Check Another Job</button>
+        <div id="final-report" class="hidden mt-12 space-y-6 pb-24">
+            <div class="glass p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
+            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest">Analyze Another Job</button>
         </div>
 
     </main>
@@ -115,23 +112,20 @@
             rawJD = document.getElementById('jd_text').value;
             rawCV = document.getElementById('cv_text').value;
 
-            if(!rawJD) { alert("Paste Job Description"); return; }
+            if(!rawJD) { alert("Please paste the Job Description"); return; }
             
             document.getElementById('step-1').classList.add('hidden');
             document.getElementById('loading-screen').classList.remove('hidden');
 
-            const statusText = document.getElementById('loading-text');
-            const messages = ["Analyzing Requirements...", "Scanning CV Keywords...", "Checking Formatting...", "Calculating Score..."];
-            let m = 0;
-            const interval = setInterval(() => {
-                statusText.innerText = messages[m % messages.length];
-                m++;
-            }, 1000);
+            const loader = document.getElementById('loading-text');
+            const msgs = ["Analyzing Requirements...", "Scanning CV Keywords...", "Checking ATS Compatibility...", "Finalizing Score..."];
+            let i = 0;
+            const interval = setInterval(() => { loader.innerText = msgs[i % msgs.length]; i++; }, 1000);
 
-            handleAnalysis(interval);
+            processAnalysis(interval);
         }
 
-        async function handleAnalysis(interval) {
+        async function processAnalysis(interval) {
             const formData = new FormData(document.getElementById('upload-form'));
             try {
                 const res = await fetch('/analyze', { method: 'POST', body: formData });
@@ -144,19 +138,32 @@
                     document.getElementById('score').innerText = (data.score || 0) + "%";
                     document.getElementById('k-count').innerText = data.missing_count || 0;
                     document.getElementById('e-count').innerText = data.errors || 0;
-                    document.getElementById('verdict').innerText = data.verdict || "Low visibility.";
+                    document.getElementById('verdict').innerText = data.verdict || "Low Visibility";
                 }, 4000); 
-            } catch (e) { alert("Error connecting."); location.reload(); }
+            } catch (e) { alert("AI Error. Refreshing..."); location.reload(); }
         }
 
-        async function pay(amount, packName) {
-            const phone = prompt(`Enter M-Pesa Number for ${packName} (Ksh ${amount}):`, "07...");
-            if(!phone) return;
+        function handlePayment(amount, packName) {
+            // Initialize Intasend Inline
+            const intasend = new window.IntaSend({
+                public_key: "YOUR_INTASEND_PUBLIC_KEY", // Get from intasend.com
+                live: false // Set to true when ready
+            });
 
-            alert("STK Push Sent. Enter PIN to unlock documents.");
-            
-            document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
-            
+            intasend.on("COMPLETE", (results) => {
+                unlockResults(amount, packName);
+            })
+            .on("FAILED", () => alert("Payment failed. Try again."))
+            .run({
+                amount: amount,
+                currency: "KES",
+                label: `CV Check: ${packName}`,
+                email: "customer@cvcheck.co.ke"
+            });
+        }
+
+        async function unlockResults(amount, packName) {
+            document.getElementById('step-2').classList.add('opacity-20', 'pointer-events-none');
             try {
                 const res = await fetch('/generate-docs', {
                     method: 'POST',
@@ -166,21 +173,23 @@
                 const data = await res.json();
 
                 document.getElementById('final-report').classList.remove('hidden');
-                let html = `<h4 class="text-2xl font-black text-white mb-8 uppercase">${packName} Results</h4>`;
+                let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase tracking-tighter">${packName} Results</h4>`;
                 
-                html += `<div class="p-8 bg-slate-800/50 rounded-3xl border border-slate-700 mb-6">
-                    <b class="yellow-text text-[10px] uppercase block mb-4">Critical Missing Keywords</b>
-                    <p class="text-white text-xl font-bold">${data.keywords.join(" • ")}</p>
+                // Keywords (Unlocked for both tiers)
+                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                    <b class="yellow-text text-[10px] uppercase block mb-4 tracking-widest">Critical Missing Keywords</b>
+                    <p class="text-white text-2xl font-bold leading-relaxed">${data.keywords.join(" • ")}</p>
                 </div>`;
 
-                if(amount === 60) {
+                // Summary & Cover Letter (Unlocked for Pro Bundle only)
+                if(amount >= 60) {
                     html += `
-                    <div class="p-8 bg-slate-800/50 rounded-3xl border border-slate-700 mb-6">
-                        <b class="yellow-text text-[10px] uppercase block mb-4">AI Optimized Summary</b>
+                    <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                        <b class="yellow-text text-[10px] uppercase block mb-4 tracking-widest">AI Optimized Professional Summary</b>
                         <p class="text-slate-300 leading-relaxed">${data.summary}</p>
                     </div>
-                    <div class="p-10 bg-white rounded-[2rem] text-slate-900">
-                        <b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Professional Cover Letter</b>
+                    <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl">
+                        <b class="text-blue-600 text-[10px] uppercase font-black block mb-6 tracking-widest">Tailored Cover Letter</b>
                         <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">${data.cover_letter}</pre>
                     </div>`;
                 }
