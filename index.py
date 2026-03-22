@@ -6,6 +6,7 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
+# Initialize Groq
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def extract_text_from_pdf(file):
@@ -36,38 +37,27 @@ def analyze():
             if pdf_text: cv_text = pdf_text
 
     if not jd_text or not cv_text:
-        return jsonify({"score": 0, "verdict": "Missing inputs"}), 400
+        return jsonify({"score": 0, "verdict": "Inputs missing"}), 400
 
     try:
-        # THE FIX: We define the JSON structure explicitly in the system prompt
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are a recruitment system. You must output ONLY valid JSON. Format: {\"score\": number, \"missing_count\": number, \"errors\": number, \"verdict\": \"string\"}"
+                    "content": "You are an ATS system. Return ONLY JSON format: {\"score\": number, \"missing_count\": number, \"errors\": number, \"verdict\": \"string\"}"
                 },
                 {
                     "role": "user", 
-                    "content": f"Compare this CV and JD. CV: {cv_text[:2000]} JD: {jd_text[:2000]}"
+                    "content": f"Analyze match. CV: {cv_text[:2000]} JD: {jd_text[:2000]}"
                 }
             ],
             model="llama-3.1-8b-instant", 
             response_format={"type": "json_object"}
         )
-        
-        # Parse the response to ensure it's valid
-        ai_data = json.loads(response.choices[0].message.content)
-        return jsonify(ai_data)
-
+        return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
-        print(f"Llama Analysis Error: {str(e)}")
-        # Fallback response so the UI doesn't show "undefined"
-        return jsonify({
-            "score": 0, 
-            "missing_count": 0, 
-            "errors": 0, 
-            "verdict": "AI formatting error. Please try again."
-        }), 200 # We return 200 so the frontend can at least show the 0% instead of crashing
+        print(f"Error: {e}")
+        return jsonify({"score": 0, "missing_count": 0, "errors": 0, "verdict": "AI Analysis failed"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
@@ -77,20 +67,19 @@ def generate_docs():
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are a career coach. Output ONLY JSON. Format: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"
+                    "content": "You are a career expert. Return ONLY JSON format: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"
                 },
                 {
                     "role": "user", 
-                    "content": f"Create documents for JD: {data.get('jd')[:1000]} and CV: {data.get('cv')[:1000]}"
+                    "content": f"Optimize for JD: {data.get('jd')[:1500]} and CV: {data.get('cv')[:2000]}"
                 }
             ],
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
-        print(f"Llama Docs Error: {str(e)}")
-        return jsonify({"error": "Failed to generate"}), 500
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
