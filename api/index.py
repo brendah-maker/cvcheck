@@ -89,3 +89,13 @@ def generate_docs():
     )
     
     return chat_completion.choices[0].message.content
+
+
+from flask import Flask, request, jsonify, render_template
+# ... (rest of your imports and functions) ...
+
+app = Flask(__name__, template_folder='../templates')
+
+# ... (your @app.route functions) ...
+
+# IMPORTANT: Remove app.run(). Vercel handles the execution.
