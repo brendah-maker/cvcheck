@@ -18,7 +18,6 @@ def extract_text_from_pdf(file):
             if content: text += content
         return text
     except Exception as e:
-        print(f"PDF Error: {e}")
         return ""
 
 @app.route('/')
@@ -36,27 +35,17 @@ def analyze():
             pdf_text = extract_text_from_pdf(file)
             if pdf_text: cv_text = pdf_text
 
-    if not jd_text or not cv_text:
-        return jsonify({"score": 0, "verdict": "Inputs missing"}), 400
-
     try:
         response = client.chat.completions.create(
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are an ATS system. Return ONLY JSON format: {\"score\": number, \"missing_count\": number, \"errors\": number, \"verdict\": \"string\"}"
-                },
-                {
-                    "role": "user", 
-                    "content": f"Analyze match. CV: {cv_text[:2000]} JD: {jd_text[:2000]}"
-                }
+                {"role": "system", "content": "You are an ATS. Return ONLY JSON: {\"score\": number, \"missing_count\": number, \"errors\": number, \"verdict\": \"string\"}"},
+                {"role": "user", "content": f"Analyze: CV: {cv_text[:2000]} JD: {jd_text[:2000]}"}
             ],
-            model="llama-3.1-8b-instant", 
+            model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
-        print(f"Error: {e}")
         return jsonify({"score": 0, "missing_count": 0, "errors": 0, "verdict": "AI Analysis failed"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
@@ -65,14 +54,8 @@ def generate_docs():
     try:
         response = client.chat.completions.create(
             messages=[
-                {
-                    "role": "system", 
-                    "content": "You are a career expert. Return ONLY JSON format: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"
-                },
-                {
-                    "role": "user", 
-                    "content": f"Optimize for JD: {data.get('jd')[:1500]} and CV: {data.get('cv')[:2000]}"
-                }
+                {"role": "system", "content": "Return ONLY JSON: {\"keywords\": [], \"summary\": \"\", \"cover_letter\": \"\"}"},
+                {"role": "user", "content": f"Optimize CV for JD: {data.get('jd')[:1500]} CV: {data.get('cv')[:2000]}"}
             ],
             model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"}
