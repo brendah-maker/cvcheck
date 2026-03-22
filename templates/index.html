@@ -115,62 +115,82 @@
 
     </main>
 
-    <script>
-        let rawJD = ""; let rawCV = "";
+<script>
+    let rawJD = ""; 
+    let rawCV = "";
 
-        async function startAnalysis() {
-            rawJD = document.getElementById('jd_text').value;
-            rawCV = document.getElementById('cv_text').value;
-            if(!rawJD) return alert("Paste Job Description");
+    // 1. START ANALYSIS
+    async function startAnalysis() {
+        rawJD = document.getElementById('jd_text').value;
+        rawCV = document.getElementById('cv_text').value;
+        if(!rawJD) return alert("Please paste Job Description");
+        
+        document.getElementById('step-1').classList.add('hidden');
+        document.getElementById('loading-screen').classList.remove('hidden');
+
+        const formData = new FormData(document.getElementById('upload-form'));
+        try {
+            const res = await fetch('/analyze', { method: 'POST', body: formData });
+            const data = await res.json();
             
-            document.getElementById('step-1').classList.add('hidden');
-            document.getElementById('loading-screen').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+                document.getElementById('score').innerText = (data.score || 0) + "%";
+                document.getElementById('k-count').innerText = data.missing_count || 0;
+                document.getElementById('e-count').innerText = data.errors || 0;
+                document.getElementById('verdict').innerText = data.verdict || "";
+                document.getElementById('visibility').innerText = data.visibility || "LOW";
+                document.getElementById('gap-teaser').innerText = data.gap_teaser || "";
+                document.getElementById('format-teaser').innerText = data.format_teaser || "";
+            }, 3000); 
+        } catch (e) { alert("Analysis failed. Refreshing..."); location.reload(); }
+    }
 
-            const loader = document.getElementById('loading-text');
-            const msgs = ["Analyzing...", "Keyword Scan...", "ATS Check...", "Finalizing Score..."];
-            let i = 0;
-            const interval = setInterval(() => { loader.innerText = msgs[i % msgs.length]; i++; }, 1100);
-
-            const formData = new FormData(document.getElementById('upload-form'));
-            try {
-                const res = await fetch('/analyze', { method: 'POST', body: formData });
-                const data = await res.json();
-                
-                setTimeout(() => {
-                    clearInterval(interval);
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('step-2').classList.remove('hidden');
-                    document.getElementById('score').innerText = (data.score || 0) + "%";
-                    document.getElementById('k-count').innerText = data.missing_count || 0;
-                    document.getElementById('e-count').innerText = data.errors || 0;
-                    document.getElementById('verdict').innerText = data.verdict || "";
-                    document.getElementById('visibility').innerText = data.visibility || "LOW";
-                    document.getElementById('gap-teaser').innerText = data.gap_teaser || "";
-                    document.getElementById('format-teaser').innerText = data.format_teaser || "";
-                }, 4000); 
-            } catch (e) { location.reload(); }
-        }
-
-        async function pay(amount, packName) {
-            // 1. Fetch Public Key from backend securely
-            const config = await fetch('/get-payment-config').then(r => r.json());
+    // 2. PAYMENT LOGIC (The part that wasn't working)
+    async function pay(amount, packName) {
+        console.log(`Starting payment for ${packName} - Ksh ${amount}`);
+        
+        try {
+            // Get Public Key from Render
+            const configRes = await fetch('/get-payment-config');
+            const config = await configRes.json();
             
+            if (!config.public_key) {
+                alert("Payment Error: IntaSend Key not found in Render settings.");
+                return;
+            }
+
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: true // Change to false for sandbox testing
+                live: false // Set to true ONLY when you want to take real money
             });
 
-            intasend.on("COMPLETE", (results) => { unlockResults(amount, packName); })
+            intasend.on("COMPLETE", (results) => {
+                console.log("Payment Successful", results);
+                unlockResults(amount, packName);
+            })
+            .on("FAILED", (results) => {
+                console.log("Payment Failed", results);
+                alert("Payment failed. Please try again.");
+            })
             .run({
                 amount: amount,
                 currency: "KES",
                 label: `CV Check: ${packName}`,
                 email: "user@cvcheck.co.ke"
             });
-        }
 
-        async function unlockResults(amount, packName) {
-            document.getElementById('step-2').classList.add('opacity-20', 'pointer-events-none');
+        } catch (e) {
+            console.error("Payment Setup Error:", e);
+            alert("Could not start payment. Check console for errors.");
+        }
+    }
+
+    // 3. UNLOCK RESULTS
+    async function unlockResults(amount, packName) {
+        document.getElementById('step-2').classList.add('opacity-20', 'pointer-events-none');
+        try {
             const res = await fetch('/generate-docs', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -188,7 +208,9 @@
             }
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
-        }
-    </script>
+        } catch (e) { alert("Error generating docs."); }
+    }
+</script>
+    
 </body>
 </html>
