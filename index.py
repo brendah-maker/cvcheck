@@ -3,7 +3,8 @@ from flask import Flask, request, jsonify, render_template
 from groq import Groq
 import PyPDF2
 
-app = Flask(__name__, template_folder='../templates')
+
+app = Flask(__name__, template_folder='templates')
 
 # Initialize Groq Client (Set GROQ_API_KEY in Vercel)
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
@@ -109,6 +110,7 @@ app = Flask(__name__, template_folder='../templates')
 
 # ... (your routes: @app.route('/') and @app.route('/analyze') etc)
 
-# Add this at the very bottom so Render can start it
+
+
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
