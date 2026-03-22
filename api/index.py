@@ -2,19 +2,22 @@ from flask import Flask, request, jsonify, render_template
 import os
 import io
 import PyPDF2
-from openai import OpenAI
+from groq import Groq
 
 app = Flask(__name__, template_folder='../templates')
 
-# Initialize OpenAI (Set your API Key in Vercel Environment Variables)
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize Groq Client (Set GROQ_API_KEY in Vercel)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def extract_text_from_pdf(file):
-    reader = PyPDF2.PdfReader(file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text()
-    return text
+    try:
+        reader = PyPDF2.PdfReader(file)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() or ""
+        return text
+    except Exception as e:
+        return ""
 
 @app.route('/')
 def index():
@@ -22,31 +25,40 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    # 1. Get Data
     jd_text = request.form.get('jd_text', '')
     cv_text = request.form.get('cv_text', '')
     
+    # Handle PDF Upload
     if 'cv_file' in request.files:
         file = request.files['cv_file']
         if file.filename != '':
-            cv_text = extract_text_from_pdf(file)
+            pdf_text = extract_text_from_pdf(file)
+            if pdf_text:
+                cv_text = pdf_text
 
-    # 2. Call OpenAI for Score
+    # Llama 3 Prompt for Analysis
     prompt = f"""
-    Analyze this CV against this Job Description.
-    CV: {cv_text[:2000]}
+    Analyze the following CV against the Job Description.
+    CV: {cv_text[:3000]}
     JD: {jd_text[:2000]}
-    Return ONLY a JSON object: 
-    {{"score": 85, "missing_count": 4, "errors": 2, "verdict": "Short explanation"}}
-    """
     
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        response_format={ "type": "json_object" }
+    Return a JSON object with:
+    1. "score": (0-100 integer)
+    2. "missing_count": (number of missing keywords)
+    3. "errors": (number of formatting issues)
+    4. "verdict": (A short 1-sentence punchy verdict)
+    """
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are an expert ATS recruitment bot. Return ONLY JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        model="llama3-8b-8192", # Or llama3-70b-8192 for better quality
+        response_format={"type": "json_object"}
     )
     
-    return response.choices[0].message.content
+    return chat_completion.choices[0].message.content
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
@@ -54,20 +66,26 @@ def generate_docs():
     jd = data.get('jd')
     cv = data.get('cv')
 
-    # Here you would typically verify payment via M-Pesa API before proceeding
-    
+    # Llama 3 Prompt for Paid Content
     prompt = f"""
-    Based on this CV and JD, generate:
-    1. A list of 5 keywords to add.
-    2. A 3-sentence professional summary.
-    3. A full cover letter.
-    Return JSON: {{"keywords": [], "summary": "", "cover_letter": ""}}
-    """
+    Based on this CV and Job Description, provide:
+    1. keywords: A list of 5 high-impact keywords missing from the CV.
+    2. summary: A 3-line powerful professional summary.
+    3. cover_letter: A high-conversion cover letter.
     
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
-        response_format={ "type": "json_object" }
+    CV: {cv[:3000]}
+    JD: {jd[:2000]}
+    
+    Return ONLY a JSON object.
+    """
+
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {"role": "system", "content": "You are a professional career coach. Return ONLY JSON."},
+            {"role": "user", "content": prompt}
+        ],
+        model="llama3-70b-8192", # Using the larger Llama model for better writing
+        response_format={"type": "json_object"}
     )
     
-    return response.choices[0].message.content
+    return chat_completion.choices[0].message.content
