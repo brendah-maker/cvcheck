@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Check | Get Shortlisted</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        .navy-bg { background-color: #0f172a; }
+        .yellow-text { color: #facc15; }
+        .yellow-bg { background-color: #facc15; }
+    </style>
+</head>
+<body class="text-slate-200">
+
+    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
+        <h1 class="text-2xl font-extrabold tracking-tighter text-white">CV<span class="yellow-text">CHECK</span></h1>
+        <div class="hidden md:block text-xs font-bold bg-slate-800 px-4 py-2 rounded-full border border-slate-700">AI-POWERED BY LLAMA 3</div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        
+        <div id="step-1" class="space-y-12">
+            <div class="text-center space-y-4">
+                <h2 class="text-5xl md:text-6xl font-black text-white leading-tight">Stop Guessing. <br> <span class="yellow-text">Start Getting Hired.</span></h2>
+            </div>
+
+            <form id="upload-form" class="grid md:grid-cols-2 gap-8">
+                <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
+                    <label class="block text-xs font-black yellow-text uppercase tracking-widest mb-4">Job Details</label>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste Job Description here..." class="w-full p-4 bg-slate-800 border-none rounded-2xl h-64 text-white text-sm"></textarea>
+                </div>
+
+                <div class="bg-slate-900/50 p-8 rounded-3xl border border-slate-800">
+                    <label class="block text-xs font-black yellow-text uppercase tracking-widest mb-4">Your CV</label>
+                    <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-4">
+                    <textarea name="cv_text" id="cv_text" placeholder="Or paste CV text here..." class="w-full p-4 bg-slate-800 border-none rounded-2xl h-48 text-white text-sm"></textarea>
+                </div>
+
+                <div class="md:col-span-2">
+                    <button type="button" onclick="handleAnalysis()" id="analyze-btn" class="w-full yellow-bg text-slate-900 font-black py-6 rounded-2xl uppercase tracking-widest text-lg">Run Free AI Match Check</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="step-2" class="hidden animate-in fade-in duration-500">
+            <div class="bg-white rounded-[3rem] overflow-hidden shadow-2xl">
+                <div class="navy-bg p-12 text-center">
+                    <p class="text-xs font-black yellow-text uppercase mb-4">ATS Match Score</p>
+                    <h3 id="score" class="text-9xl font-black text-white tracking-tighter">0%</h3>
+                    <p id="verdict" class="text-slate-400 mt-4 italic">Analyzing...</p>
+                </div>
+                
+                <div class="p-12 grid grid-cols-2 gap-6 bg-white">
+                    <div class="bg-slate-50 p-8 rounded-3xl text-center">
+                        <p id="k-count" class="text-4xl font-black text-slate-900">0</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Missing Keywords</p>
+                    </div>
+                    <div class="bg-slate-50 p-8 rounded-3xl text-center">
+                        <p id="e-count" class="text-4xl font-black text-slate-900">0</p>
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Formatting Issues</p>
+                    </div>
+                    
+                    <button onclick="generateDocs()" id="pay-btn" class="col-span-2 navy-bg text-white font-black py-5 rounded-2xl uppercase mt-4">Fix Everything for Ksh 60</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="final-report" class="hidden mt-12 space-y-8 pb-20">
+            <div class="bg-slate-900 p-10 rounded-[3rem] border border-slate-800">
+                <h4 class="text-2xl font-black text-white uppercase mb-8">Optimization Report</h4>
+                <div id="report-body" class="space-y-8"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let rawJD = ""; let rawCV = "";
+
+        async function handleAnalysis() {
+            const btn = document.getElementById('analyze-btn');
+            const formData = new FormData(document.getElementById('upload-form'));
+            
+            rawJD = document.getElementById('jd_text').value;
+            rawCV = document.getElementById('cv_text').value;
+
+            btn.innerText = "LLAMA IS THINKING...";
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/analyze', { method: 'POST', body: formData });
+                const data = await res.json();
+                
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('step-2').classList.remove('hidden');
+                
+                document.getElementById('score').innerText = (data.score || 0) + "%";
+                document.getElementById('k-count').innerText = data.missing_count || 0;
+                document.getElementById('e-count').innerText = data.errors || 0;
+                document.getElementById('verdict').innerText = data.verdict || "";
+            } catch (e) { alert("Error. Please refresh."); }
+        }
+
+        async function generateDocs() {
+            const phone = prompt("Enter M-Pesa Number:");
+            if(!phone) return;
+
+            const payBtn = document.getElementById('pay-btn');
+            payBtn.innerText = "GENERATING DOCS...";
+            
+            try {
+                const res = await fetch('/generate-docs', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({jd: rawJD, cv: rawCV})
+                });
+                const data = await res.json();
+
+                document.getElementById('final-report').classList.remove('hidden');
+                document.getElementById('report-body').innerHTML = `
+                    <div class="p-6 bg-slate-800 rounded-2xl"><b class="yellow-text text-xs uppercase">Keywords</b><p class="text-white mt-2">${data.keywords.join(", ")}</p></div>
+                    <div class="p-6 bg-slate-800 rounded-2xl"><b class="yellow-text text-xs uppercase">Summary</b><p class="text-slate-300 mt-2">${data.summary}</p></div>
+                    <div class="p-6 bg-white rounded-2xl text-slate-900"><b class="text-blue-600 text-xs uppercase">Cover Letter</b><pre class="whitespace-pre-wrap mt-4 text-sm font-sans">${data.cover_letter}</pre></div>
+                `;
+                window.scrollTo({ top: document.getElementById('final-report').offsetTop, behavior: 'smooth' });
+            } catch (e) { alert("Error generating docs."); }
+        }
+    </script>
+</body>
+</html>
