@@ -116,78 +116,80 @@
     </main>
 
 <script>
-    let rawJD = ""; 
-    let rawCV = "";
+    let rawJD = ""; let rawCV = "";
 
-    // 1. START ANALYSIS
     async function startAnalysis() {
+        // ... (Keep your startAnalysis code the same)
+        // Ensure you capture text into rawJD and rawCV
         rawJD = document.getElementById('jd_text').value;
         rawCV = document.getElementById('cv_text').value;
-        if(!rawJD) return alert("Please paste Job Description");
         
+        const formData = new FormData(document.getElementById('upload-form'));
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
 
-        const formData = new FormData(document.getElementById('upload-form'));
         try {
             const res = await fetch('/analyze', { method: 'POST', body: formData });
             const data = await res.json();
             
-            setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('step-2').classList.remove('hidden');
-                document.getElementById('score').innerText = (data.score || 0) + "%";
-                document.getElementById('k-count').innerText = data.missing_count || 0;
-                document.getElementById('e-count').innerText = data.errors || 0;
-                document.getElementById('verdict').innerText = data.verdict || "";
-                document.getElementById('visibility').innerText = data.visibility || "LOW";
-                document.getElementById('gap-teaser').innerText = data.gap_teaser || "";
-                document.getElementById('format-teaser').innerText = data.format_teaser || "";
-            }, 3000); 
-        } catch (e) { alert("Analysis failed. Refreshing..."); location.reload(); }
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+            document.getElementById('score').innerText = (data.score || 0) + "%";
+            document.getElementById('k-count').innerText = data.missing_count || 0;
+            document.getElementById('e-count').innerText = data.errors || 0;
+            document.getElementById('verdict').innerText = data.verdict || "";
+            document.getElementById('visibility').innerText = data.visibility || "LOW";
+            document.getElementById('gap-teaser').innerText = data.gap_teaser || "";
+            document.getElementById('format-teaser').innerText = data.format_teaser || "";
+        } catch (e) { alert("Analysis failed"); location.reload(); }
     }
 
-    // 2. PAYMENT LOGIC (The part that wasn't working)
-    async function pay(amount, packName) {
-        console.log(`Starting payment for ${packName} - Ksh ${amount}`);
+    // UPDATED PAY FUNCTION
+    async function pay(amt, packName) {
+        console.log("Pay button clicked for:", packName);
         
         try {
-            // Get Public Key from Render
+            // 1. Fetch Key from your backend
             const configRes = await fetch('/get-payment-config');
             const config = await configRes.json();
             
             if (!config.public_key) {
-                alert("Payment Error: IntaSend Key not found in Render settings.");
+                alert("Error: Payment Key not found. Check Render Environment Variables.");
                 return;
             }
 
+            // 2. Initialize IntaSend
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: false // Set to true ONLY when you want to take real money
+                live: false // CHANGE TO true ONLY WHEN READY FOR REAL MONEY
             });
 
-            intasend.on("COMPLETE", (results) => {
-                console.log("Payment Successful", results);
-                unlockResults(amount, packName);
-            })
-            .on("FAILED", (results) => {
-                console.log("Payment Failed", results);
-                alert("Payment failed. Please try again.");
-            })
-            .run({
-                amount: amount,
+            // 3. Launch Payment
+            intasend.run({
+                amount: amt,
                 currency: "KES",
                 label: `CV Check: ${packName}`,
-                email: "user@cvcheck.co.ke"
+                email: "user@cvcheck.co.ke",
+                phone_number: "0700000000" // Optional
+            })
+            .on("COMPLETE", (results) => {
+                console.log("Payment Complete:", results);
+                unlockResults(amt, packName);
+            })
+            .on("FAILED", (results) => {
+                console.error("Payment Failed:", results);
+                alert("Payment was not successful. Please try again.");
+            })
+            .on("IN-PROGRESS", () => {
+                console.log("Payment in progress...");
             });
 
-        } catch (e) {
-            console.error("Payment Setup Error:", e);
-            alert("Could not start payment. Check console for errors.");
+        } catch (err) {
+            console.error("IntaSend Setup Error:", err);
+            alert("Could not start payment. Are you connected to the internet?");
         }
     }
 
-    // 3. UNLOCK RESULTS
     async function unlockResults(amount, packName) {
         document.getElementById('step-2').classList.add('opacity-20', 'pointer-events-none');
         try {
