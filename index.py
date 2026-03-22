@@ -7,18 +7,6 @@ from groq import Groq
 app = Flask(__name__, template_folder='templates')
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-# Ensure this variable name matches exactly what you typed in Render
-INTASEND_KEY = os.environ.get("INTASEND_PUBLISHABLE_KEY")
-
-def extract_text_from_pdf(file):
-    try:
-        reader = PyPDF2.PdfReader(file)
-        text = ""
-        for page in reader.pages:
-            content = page.extract_text()
-            if content: text += content
-        return text
-    except: return ""
 
 @app.route('/')
 def index():
@@ -26,8 +14,9 @@ def index():
 
 @app.route('/get-payment-config')
 def get_config():
-    # Sending the key to the frontend
-    return jsonify({"public_key": INTASEND_KEY})
+    # Make sure this name is EXACTLY what is in Render
+    key = os.environ.get("INTASEND_PUBLISHABLE_KEY")
+    return jsonify({"public_key": key})
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
@@ -36,30 +25,27 @@ def analyze():
     if 'cv_file' in request.files:
         file = request.files['cv_file']
         if file.filename != '':
-            cv_text = extract_text_from_pdf(file)
+            reader = PyPDF2.PdfReader(file)
+            cv_text = "".join([page.extract_text() for page in reader.pages])
 
     try:
         response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "You are an ATS. Output ONLY JSON."},
-                {"role": "user", "content": f"Analyze: CV: {cv_text[:2000]} JD: {jd_text[:1500]}. Return JSON with keys: score, missing_count, errors, verdict, visibility, gap_teaser, format_teaser"}
-            ],
+            messages=[{"role": "system", "content": "Return ONLY JSON."},
+                      {"role": "user", "content": f"Analyze CV match: {cv_text[:2000]} vs JD: {jd_text[:1500]}"}],
             model="llama-3.1-8b-instant",
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except:
-        return jsonify({"score": 0, "verdict": "AI Analysis Failed"}), 500
+        return jsonify({"score": 0, "verdict": "Error"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
     data = request.json
     try:
         response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": "Return ONLY JSON: {'keywords': [], 'summary': '', 'cover_letter': ''}"},
-                {"role": "user", "content": f"Optimize CV for JD: {data.get('jd')[:1000]} CV: {data.get('cv')[:1500]}"}
-            ],
+            messages=[{"role": "system", "content": "Return ONLY JSON."},
+                      {"role": "user", "content": f"Create documents for CV: {data.get('cv')[:1500]} and JD: {data.get('jd')[:1000]}"}],
             model="llama-3.3-70b-versatile",
             response_format={"type": "json_object"}
         )
