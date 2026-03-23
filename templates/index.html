@@ -19,7 +19,7 @@
 </head>
 <body class="text-slate-200">
 
-    <nav class="max-w-6xl mx-auto p-6">
+    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
         <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
     </nav>
 
@@ -35,7 +35,7 @@
             <form id="upload-form" class="grid md:grid-cols-2 gap-8">
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
-                    <textarea name="jd_text" id="jd_text" placeholder="Paste requirements here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste requirements..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
                 </div>
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
@@ -46,13 +46,13 @@
             </form>
         </div>
 
-        <!-- LOADING -->
+        <!-- LOADING SCREEN -->
         <div id="loading-screen" class="hidden text-center py-20">
             <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Processing AI Analysis...</p>
+            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">AI analyzing your match...</p>
         </div>
 
-        <!-- STEP 2: FREE REPORT -->
+        <!-- STEP 2: RESULTS & PAYMENT AREA -->
         <div id="step-2" class="hidden animate-up">
             <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
                 <div class="navy-bg p-12 text-center">
@@ -63,7 +63,7 @@
                 
                 <div class="p-10 bg-white space-y-8 text-slate-900">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-red-50 p-6 rounded-3xl border border-red-100">
+                        <div class="bg-red-50 p-6 rounded-3xl border border-red-100 text-center">
                             <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Visibility</p>
                             <p id="visibility" class="text-lg font-black text-red-600">--</p>
                         </div>
@@ -71,13 +71,13 @@
                             <p id="k-count" class="text-2xl font-black text-slate-900">0</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keyword Gaps</p>
                         </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center flex flex-col justify-center">
-                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase">Scanning...</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AI Diagnostic</p>
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center flex flex-col justify-center items-center">
+                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase px-2">Scanning...</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Critical Issue</p>
                         </div>
                     </div>
 
-                    <!-- PACKAGE SELECTOR -->
+                    <!-- PACKAGE OPTIONS -->
                     <div id="package-selector" class="bg-slate-900 p-8 rounded-[3rem] space-y-4">
                         <p class="text-white text-center text-[10px] font-black uppercase tracking-widest opacity-60">Unlock Full Report</p>
                         <div class="grid md:grid-cols-2 gap-4">
@@ -92,15 +92,17 @@
                         </div>
                     </div>
 
-                    <!-- PHONE INPUT FIELD (Appears on click) -->
+                    <!-- PHONE INPUT AREA -->
                     <div id="phone-input-area" class="hidden bg-slate-900 p-8 rounded-[3rem] space-y-6 animate-up text-center">
                         <div>
-                            <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="target-pack-name" class="yellow-text"></span></p>
-                            <p class="text-slate-500 text-[10px] mt-1">Enter M-Pesa Number to trigger prompt</p>
+                            <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="target-pack-name" class="yellow-text"></span> Report</p>
+                            <p class="text-slate-500 text-[10px] mt-1">Enter M-Pesa Number below</p>
                         </div>
-                        <input type="tel" id="user_phone" placeholder="0712345678" class="w-full p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold focus:ring-2 focus:ring-yellow-500">
-                        <button id="pay-btn" onclick="processPayment()" class="w-full yellow-bg text-slate-900 font-black py-5 rounded-2xl uppercase tracking-widest shadow-xl">Pay Now (Ksh <span id="target-amount">0</span>)</button>
-                        <button onclick="hidePaymentField()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">Cancel</button>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input type="tel" id="user_phone" placeholder="07XXXXXXXX" class="flex-1 p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold focus:ring-2 focus:ring-yellow-500">
+                            <button id="pay-btn" onclick="processPayment()" class="yellow-bg text-slate-900 font-black px-10 py-5 rounded-2xl uppercase tracking-widest shadow-xl hover:scale-95 transition-all">Pay Now</button>
+                        </div>
+                        <button onclick="hidePaymentField()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">Back to packages</button>
                     </div>
 
                 </div>
@@ -122,7 +124,8 @@
     async function startAnalysis() {
         rawJD = document.getElementById('jd_text').value;
         rawCV = document.getElementById('cv_text').value;
-        const formData = new FormData(document.getElementById('upload-form'));
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
         
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
@@ -134,20 +137,25 @@
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
             
-            // Score fixed to WHOLE number
-            document.getElementById('score').innerText = Math.round(data.score) + "%";
+            // --- JS NaN SAFETY ---
+            const numericScore = parseInt(data.score);
+            document.getElementById('score').innerText = (isNaN(numericScore) ? 0 : numericScore) + "%";
+            
             document.getElementById('k-count').innerText = data.missing_count || 0;
-            document.getElementById('e-text').innerText = data.error_text || "NO ERRORS";
+            document.getElementById('e-text').innerText = data.error_text || "No major issues";
             document.getElementById('verdict').innerText = data.verdict || "";
             document.getElementById('visibility').innerText = data.visibility || "LOW";
-        } catch (e) { location.reload(); }
+        } catch (e) {
+            console.error(e);
+            alert("Analysis failed. Please refresh and try again.");
+            location.reload(); 
+        }
     }
 
     function showPaymentField(amt, name) {
         activeAmount = amt;
         activePack = name;
-        document.getElementById('target-amount').innerText = amt;
-        document.getElementById('target-pack-name').innerText = name;
+        document.getElementById('target-pack-name').innerText = name.toUpperCase();
         document.getElementById('package-selector').classList.add('hidden');
         document.getElementById('phone-input-area').classList.remove('hidden');
     }
@@ -159,10 +167,11 @@
 
     async function processPayment() {
         const phone = document.getElementById('user_phone').value;
-        if(phone.length < 10) return alert("Please enter a valid M-Pesa number");
+        if(phone.length < 10) return alert("Enter a valid M-Pesa number (e.g. 0712345678)");
 
         const btn = document.getElementById('pay-btn');
-        btn.innerText = "Processing...";
+        const originalText = btn.innerText;
+        btn.innerText = "Requesting...";
         btn.disabled = true;
 
         try {
@@ -171,7 +180,7 @@
             
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: false // Set to true for live money
+                live: false // CHANGE TO true ONLY WHEN READY FOR REAL MONEY
             });
 
             intasend.run({
@@ -179,21 +188,28 @@
                 currency: "KES",
                 label: `CV Check: ${activePack}`,
                 phone_number: phone,
-                email: "customer@cvcheck.co.ke" // Included for SDK stability
+                email: "customer@cvcheck.co.ke"
             })
             .on("COMPLETE", () => unlockFinalReport())
             .on("FAILED", () => {
-                alert("Payment Failed");
-                btn.innerText = "Pay Now";
+                alert("Payment was not successful.");
+                btn.innerText = originalText;
                 btn.disabled = false;
+            })
+            .on("IN-PROGRESS", () => {
+                console.log("Waiting for prompt...");
             });
-        } catch (err) { alert("System Error"); }
+        } catch (err) { 
+            alert("Payment system error.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
     }
 
     async function unlockFinalReport() {
         document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
         document.getElementById('loading-screen').classList.remove('hidden');
-        document.getElementById('loading-text').innerText = "Generating Professional Report...";
+        document.getElementById('loading-text').innerText = "AI is writing your custom report...";
 
         try {
             const res = await fetch('/generate-docs', {
@@ -207,15 +223,24 @@
             document.getElementById('final-report').classList.remove('hidden');
             
             let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${activePack}</h4>`;
-            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Recommended Keywords</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
+            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Keywords to include</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
 
             if(activeAmount >= 60) {
-                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">AI Career Strategy</b><p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p></div>
-                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Custom Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
+                html += `
+                    <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                        <b class="yellow-text text-[10px] uppercase block mb-4">Job-Match Strategy</b>
+                        <p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p>
+                    </div>
+                    <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl">
+                        <b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Optimized Cover Letter</b>
+                        <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">${data.cover_letter}</pre>
+                    </div>`;
             }
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
-        } catch (e) { alert("Error generating docs."); }
+        } catch (e) { 
+            alert("Error generating report. Please refresh."); 
+        }
     }
 </script>
 </body>
