@@ -51,7 +51,7 @@
         <!-- STEP 2: LOADING -->
         <div id="loading-screen" class="hidden text-center py-20 space-y-8">
             <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Analyzing...</p>
+            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Scanning for Bots...</p>
         </div>
 
         <!-- STEP 3: TEASER & DIAGNOSTIC -->
@@ -90,9 +90,9 @@
 
                     <div class="bg-slate-900 p-8 rounded-[3rem] space-y-6">
                         <div class="grid md:grid-cols-2 gap-4">
-                            <button onclick="pay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all">
+                            <button onclick="pay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all group">
                                 <b class="block text-white text-lg">Diagnostic</b>
-                                <span class="text-slate-400 text-[10px] font-bold uppercase">See Missing Keywords</span>
+                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-yellow-500">See Missing Keywords</span>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
                             </button>
                             <button onclick="pay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all relative">
@@ -116,15 +116,17 @@
     </main>
 
 <script>
-    let rawJD = ""; let rawCV = "";
+    let globalJD = ""; 
+    let globalCV = "";
 
     async function startAnalysis() {
-        // ... (Keep your startAnalysis code the same)
-        // Ensure you capture text into rawJD and rawCV
-        rawJD = document.getElementById('jd_text').value;
-        rawCV = document.getElementById('cv_text').value;
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
         
-        const formData = new FormData(document.getElementById('upload-form'));
+        // Save to variables for later use (Payment generation)
+        globalJD = document.getElementById('jd_text').value;
+        globalCV = document.getElementById('cv_text').value;
+
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
 
@@ -134,83 +136,120 @@
             
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
+            
+            // Populate Results
             document.getElementById('score').innerText = (data.score || 0) + "%";
             document.getElementById('k-count').innerText = data.missing_count || 0;
             document.getElementById('e-count').innerText = data.errors || 0;
             document.getElementById('verdict').innerText = data.verdict || "";
             document.getElementById('visibility').innerText = data.visibility || "LOW";
-            document.getElementById('gap-teaser').innerText = data.gap_teaser || "";
-            document.getElementById('format-teaser').innerText = data.format_teaser || "";
-        } catch (e) { alert("Analysis failed"); location.reload(); }
+            document.getElementById('gap-teaser').innerText = data.gap_teaser || "Hidden until payment...";
+            document.getElementById('format-teaser').innerText = data.format_teaser || "Hidden until payment...";
+            
+            // Persistence: Store texts in case of reload
+            localStorage.setItem('temp_jd', globalJD);
+            localStorage.setItem('temp_cv', globalCV);
+
+        } catch (e) { 
+            alert("Analysis failed. Please check your connection."); 
+            location.reload(); 
+        }
     }
 
-    // UPDATED PAY FUNCTION
     async function pay(amt, packName) {
-        console.log("Pay button clicked for:", packName);
-        
         try {
-            // 1. Fetch Key from your backend
+            // 1. Get Public Key from backend
             const configRes = await fetch('/get-payment-config');
             const config = await configRes.json();
             
             if (!config.public_key) {
-                alert("Error: Payment Key not found. Check Render Environment Variables.");
+                alert("Payment gateway offline. Please try later.");
                 return;
             }
 
             // 2. Initialize IntaSend
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: false // CHANGE TO true ONLY WHEN READY FOR REAL MONEY
+                live: false // Set to true for live payments
             });
 
-            // 3. Launch Payment
+            // 3. Trigger Payment
             intasend.run({
                 amount: amt,
                 currency: "KES",
                 label: `CV Check: ${packName}`,
-                email: "user@cvcheck.co.ke",
-                phone_number: "0700000000" // Optional
             })
             .on("COMPLETE", (results) => {
-                console.log("Payment Complete:", results);
                 unlockResults(amt, packName);
             })
             .on("FAILED", (results) => {
-                console.error("Payment Failed:", results);
-                alert("Payment was not successful. Please try again.");
-            })
-            .on("IN-PROGRESS", () => {
-                console.log("Payment in progress...");
+                alert("Payment failed. Please try again.");
             });
 
         } catch (err) {
-            console.error("IntaSend Setup Error:", err);
-            alert("Could not start payment. Are you connected to the internet?");
+            console.error(err);
+            alert("Could not connect to IntaSend.");
         }
     }
 
     async function unlockResults(amount, packName) {
-        document.getElementById('step-2').classList.add('opacity-20', 'pointer-events-none');
+        // UI Feedback
+        document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
+        const loadingText = document.getElementById('loading-text');
+        document.getElementById('loading-screen').classList.remove('hidden');
+        loadingText.innerText = "Generating Professional Report...";
+
+        const jd = globalJD || localStorage.getItem('temp_jd');
+        const cv = globalCV || localStorage.getItem('temp_cv');
+
         try {
             const res = await fetch('/generate-docs', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jd: rawJD, cv: rawCV})
+                body: JSON.stringify({jd: jd, cv: cv})
             });
             const data = await res.json();
 
+            document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('final-report').classList.remove('hidden');
-            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${packName} Results</h4>`;
-            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Keywords</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
+            
+            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${packName}</h4>`;
+            
+            // Keywords (Available for both packages)
+            html += `
+                <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                    <b class="yellow-text text-[10px] uppercase block mb-4">Missing Priority Keywords</b>
+                    <div class="flex flex-wrap gap-2">
+                        ${data.keywords.map(k => `<span class="bg-slate-900 px-4 py-2 rounded-full text-white font-bold text-xs border border-slate-700">${k}</span>`).join('')}
+                    </div>
+                </div>`;
 
+            // Pro Bundle Exclusive
             if(amount >= 60) {
-                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">AI Summary</b><p class="text-slate-300">${data.summary}</p></div>
-                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
+                html += `
+                    <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                        <b class="yellow-text text-[10px] uppercase block mb-4">Strategic Summary</b>
+                        <p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p>
+                    </div>
+                    <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl">
+                        <div class="flex justify-between items-center mb-6">
+                            <b class="text-blue-600 text-[10px] uppercase font-black">Tailored Cover Letter</b>
+                            <button onclick="window.print()" class="text-[10px] font-bold bg-slate-100 px-3 py-1 rounded-lg hover:bg-slate-200">Print/Save</button>
+                        </div>
+                        <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">${data.cover_letter}</pre>
+                    </div>`;
+            } else {
+                html += `
+                    <div class="text-center p-8 border-2 border-dashed border-slate-700 rounded-3xl">
+                        <p class="text-slate-500 text-xs">Upgrade to Pro Bundle to unlock the Cover Letter and Strategy.</p>
+                    </div>`;
             }
+            
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
-        } catch (e) { alert("Error generating docs."); }
+        } catch (e) { 
+            alert("Error generating documents. Please contact support."); 
+        }
     }
 </script>
     
