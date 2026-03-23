@@ -2,28 +2,36 @@ import os
 import json
 import pdfplumber
 import io
+import requests
 from flask import Flask, request, jsonify, render_template
+from flask_sqlalchemy import SQLAlchemy
 from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
+
+# --- DATABASE CONFIG (To track payments) ---
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///payments.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Payment(db.Model):
+    id = db.Column(db.String(100), primary_key=True) # Invoice ID
+    status = db.Column(db.String(20), default="pending")
+
+with app.app_context():
+    db.create_all()
+
+# --- API KEYS ---
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+PUBLISHABLE_KEY = os.environ.get("INTASEND_PUBLISHABLE_KEY")
+SECRET_KEY = os.environ.get("INTASEND_SECRET_KEY")
+# Set this to True in Render Env Vars when ready for real money
+IS_LIVE = os.environ.get("IS_LIVE", "False").lower() == "true"
+API_BASE = "https://api.intasend.com/api/v1" if IS_LIVE else "https://sandbox.intasend.com/api/v1"
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
-@app.route('/get-payment-config')
-def get_config():
-    # This must be your LIVE Public Key from IntaSend for a real pop-up
-    return jsonify({"public_key": os.environ.get("INTASEND_PUBLISHABLE_KEY")})
-
-# WEBHOOK ENDPOINT
-@app.route('/api/callback', methods=['POST'])
-def payment_callback():
-    data = request.json
-    # This logs the payment details to your Render logs
-    print(f"WEBHOOK RECEIVED: {json.dumps(data)}")
-    return jsonify({"status": "ok"}), 200
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
@@ -32,48 +40,76 @@ def analyze():
     if 'cv_file' in request.files:
         file = request.files['cv_file']
         if file.filename != '':
-            try:
-                with pdfplumber.open(io.BytesIO(file.read())) as pdf:
-                    cv_text = "".join([page.extract_text() or "" for page in pdf.pages])
-            except:
-                return jsonify({"error": "PDF parse error"}), 400
+            with pdfplumber.open(io.BytesIO(file.read())) as pdf:
+                cv_text = "".join([page.extract_text() or "" for page in pdf.pages])
 
     try:
-        sys_prompt = (
-            "You are a strict ATS logic engine. Return ONLY JSON: "
-            "score (Integer 0-100), visibility ('HIGH','MEDIUM','LOW'), "
-            "missing_count (Integer), verdict (Short string), error_text (Short string)."
-        )
+        sys_prompt = "Strict ATS. Return ONLY JSON: {score: int, visibility: str, missing_count: int, verdict: str, error_text: str}"
         response = client.chat.completions.create(
-            messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": f"JD: {jd_text[:1200]}\nCV: {cv_text[:1800]}"}],
+            messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": f"JD: {jd_text[:1000]} CV: {cv_text[:1500]}"}],
             model="llama-3.1-8b-instant",
-            temperature=0, 
-            response_format={"type": "json_object"}
-        )
-        result = json.loads(response.choices[0].message.content)
-        # Ensure score is an integer for NaN protection
-        try:
-            score_val = str(result.get('score', 0))
-            result['score'] = int("".join(filter(str.isdigit, score_val)))
-        except: result['score'] = 0
-        return jsonify(result)
-    except:
-        return jsonify({"score": 0, "verdict": "Try again"}), 500
-
-@app.route('/generate-docs', methods=['POST'])
-def generate_docs():
-    data = request.json
-    try:
-        sys_prompt = "Return ONLY JSON: {keywords:[], summary:'', cover_letter:''}"
-        response = client.chat.completions.create(
-            messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": f"JD: {data.get('jd')[:1000]} CV: {data.get('cv')[:1000]}"}],
-            model="llama-3.3-70b-versatile",
             temperature=0,
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except:
-        return jsonify({"error": "Failed"}), 500
+        return jsonify({"score": 0, "verdict": "Error"}), 500
+
+# --- PAYMENT LOGIC (SheriaHub Style) ---
+@app.route('/stkpush', methods=['POST'])
+def stk_push():
+    data = request.json
+    phone = data.get("phone", "").strip()
+    amount = data.get("amount", 20)
+    
+    # Format Phone to 254...
+    if phone.startswith("0"): phone = "254" + phone[1:]
+    elif not phone.startswith("254"): phone = "254" + phone
+
+    payload = {
+        "public_key": PUBLISHABLE_KEY,
+        "amount": amount,
+        "phone_number": phone,
+        "api_ref": "CVCheck"
+    }
+    headers = {"Authorization": f"Bearer {SECRET_KEY}", "Content-Type": "application/json"}
+    
+    try:
+        res = requests.post(f"{API_BASE}/payment/mpesa-stk-push/", json=payload, headers=headers)
+        res_data = res.json()
+        inv_id = res_data.get("invoice", {}).get("invoice_id")
+        
+        if inv_id:
+            db.session.add(Payment(id=inv_id, status="pending"))
+            db.session.commit()
+            return jsonify({"checkout_id": inv_id})
+        return jsonify({"error": "Failed to trigger"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/check-payment/<id>')
+def check_payment(id):
+    headers = {"Authorization": f"Bearer {SECRET_KEY}"}
+    try:
+        res = requests.get(f"{API_BASE}/payment/status/{id}/", headers=headers)
+        state = res.json().get("invoice", {}).get("state")
+        if state == "COMPLETE":
+            return jsonify({"status": "paid"})
+    except: pass
+    return jsonify({"status": "pending"})
+
+@app.route('/generate-docs', methods=['POST'])
+def generate_docs():
+    data = request.json
+    try:
+        response = client.chat.completions.create(
+            messages=[{"role": "system", "content": "Return ONLY JSON: {keywords:[], summary:'', cover_letter:''}"}, 
+                      {"role": "user", "content": f"JD: {data.get('jd')[:1000]} CV: {data.get('cv')[:1000]}"}],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
+        )
+        return jsonify(json.loads(response.choices[0].message.content))
+    except: return jsonify({"error": "failed"}), 500
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    app.run(host='0.0.0.0', port=10000)
