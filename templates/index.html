@@ -13,17 +13,19 @@
         .yellow-text { color: #facc15; }
         .yellow-bg { background-color: #facc15; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-up { animation: slideUp 0.4s ease-out forwards; }
     </style>
 </head>
 <body class="text-slate-200">
 
-    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
+    <nav class="max-w-6xl mx-auto p-6">
         <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
     </nav>
 
     <main class="max-w-4xl mx-auto px-6 py-12">
         
-        <!-- STEP 1 -->
+        <!-- STEP 1: INPUT -->
         <div id="step-1" class="space-y-12">
             <div class="text-center space-y-4">
                 <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
@@ -33,25 +35,25 @@
             <form id="upload-form" class="grid md:grid-cols-2 gap-8">
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
-                    <textarea name="jd_text" id="jd_text" placeholder="Paste requirements..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste requirements here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
                 </div>
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
                     <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
                     <textarea name="cv_text" id="cv_text" placeholder="Or paste CV text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500"></textarea>
                 </div>
-                <button type="button" onclick="startAnalysis()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all">Check Match Score (FREE)</button>
+                <button type="button" onclick="startAnalysis()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all">Check My Match Score (FREE)</button>
             </form>
         </div>
 
-        <!-- STEP 2: LOADING -->
+        <!-- LOADING -->
         <div id="loading-screen" class="hidden text-center py-20">
             <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Analyzing Documents...</p>
+            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Processing AI Analysis...</p>
         </div>
 
-        <!-- STEP 3: FREE REPORT -->
-        <div id="step-2" class="hidden">
+        <!-- STEP 2: FREE REPORT -->
+        <div id="step-2" class="hidden animate-up">
             <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
                 <div class="navy-bg p-12 text-center">
                     <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
@@ -69,55 +71,59 @@
                             <p id="k-count" class="text-2xl font-black text-slate-900">0</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keyword Gaps</p>
                         </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center">
-                            <p id="e-count" class="text-sm font-bold text-slate-900 px-2" style="line-height: 1.2;">No errors</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Critical Issue</p>
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center flex flex-col justify-center">
+                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase">Scanning...</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AI Diagnostic</p>
                         </div>
                     </div>
 
-                    <!-- Payment Selector -->
-                    <div class="bg-slate-900 p-8 rounded-[3rem] space-y-6">
-                        <div id="package-selector" class="grid md:grid-cols-2 gap-4">
-                            <button onclick="selectPackage(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all">
+                    <!-- PACKAGE SELECTOR -->
+                    <div id="package-selector" class="bg-slate-900 p-8 rounded-[3rem] space-y-4">
+                        <p class="text-white text-center text-[10px] font-black uppercase tracking-widest opacity-60">Unlock Full Report</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <button onclick="showPaymentField(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all">
                                 <b class="block text-white text-lg">Diagnostic</b>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
                             </button>
-                            <button onclick="selectPackage(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all">
+                            <button onclick="showPaymentField(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all">
                                 <b class="block text-white text-lg">Pro Bundle</b>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 60</b>
                             </button>
                         </div>
-
-                        <!-- Hidden Phone Input Form -->
-                        <div id="payment-form" class="hidden space-y-4 border-t border-slate-800 pt-6 animate-in">
-                            <p class="text-white font-bold text-center uppercase tracking-widest text-xs">Unlock <span id="selected-pack-name" class="yellow-text"></span> Report</p>
-                            <div class="flex flex-col md:flex-row gap-2">
-                                <input type="tel" id="phone_number" placeholder="M-Pesa Number (e.g., 0712...)" class="flex-1 p-4 bg-slate-800 border-none rounded-2xl text-white">
-                                <button onclick="triggerPayment()" class="yellow-bg text-slate-900 font-black px-8 py-4 rounded-2xl uppercase text-sm">Pay Now</button>
-                            </div>
-                            <button onclick="cancelPayment()" class="w-full text-slate-500 text-[10px] uppercase font-bold">Back to packages</button>
-                        </div>
                     </div>
+
+                    <!-- PHONE INPUT FIELD (Appears on click) -->
+                    <div id="phone-input-area" class="hidden bg-slate-900 p-8 rounded-[3rem] space-y-6 animate-up text-center">
+                        <div>
+                            <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="target-pack-name" class="yellow-text"></span></p>
+                            <p class="text-slate-500 text-[10px] mt-1">Enter M-Pesa Number to trigger prompt</p>
+                        </div>
+                        <input type="tel" id="user_phone" placeholder="0712345678" class="w-full p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold focus:ring-2 focus:ring-yellow-500">
+                        <button id="pay-btn" onclick="processPayment()" class="w-full yellow-bg text-slate-900 font-black py-5 rounded-2xl uppercase tracking-widest shadow-xl">Pay Now (Ksh <span id="target-amount">0</span>)</button>
+                        <button onclick="hidePaymentField()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">Cancel</button>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- STEP 4 -->
+        <!-- FINAL REPORT -->
         <div id="final-report" class="hidden mt-12 space-y-6 pb-24">
-            <div class="glass p-10 rounded-[3rem]" id="report-content"></div>
+            <div class="glass p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
+            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest">Analyze Another Job</button>
         </div>
 
     </main>
 
 <script>
-    let globalJD = "", globalCV = "";
-    let selectedAmount = 0, selectedName = "";
+    let rawJD = "", rawCV = "";
+    let activeAmount = 0, activePack = "";
 
     async function startAnalysis() {
+        rawJD = document.getElementById('jd_text').value;
+        rawCV = document.getElementById('cv_text').value;
         const formData = new FormData(document.getElementById('upload-form'));
-        globalJD = document.getElementById('jd_text').value;
-        globalCV = document.getElementById('cv_text').value;
-
+        
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
 
@@ -128,31 +134,36 @@
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
             
-            // Score as whole number
+            // Score fixed to WHOLE number
             document.getElementById('score').innerText = Math.round(data.score) + "%";
             document.getElementById('k-count').innerText = data.missing_count || 0;
-            document.getElementById('e-count').innerText = data.error_text || "None";
+            document.getElementById('e-text').innerText = data.error_text || "NO ERRORS";
             document.getElementById('verdict').innerText = data.verdict || "";
             document.getElementById('visibility').innerText = data.visibility || "LOW";
         } catch (e) { location.reload(); }
     }
 
-    function selectPackage(amt, name) {
-        selectedAmount = amt;
-        selectedName = name;
+    function showPaymentField(amt, name) {
+        activeAmount = amt;
+        activePack = name;
+        document.getElementById('target-amount').innerText = amt;
+        document.getElementById('target-pack-name').innerText = name;
         document.getElementById('package-selector').classList.add('hidden');
-        document.getElementById('payment-form').classList.remove('hidden');
-        document.getElementById('selected-pack-name').innerText = name;
+        document.getElementById('phone-input-area').classList.remove('hidden');
     }
 
-    function cancelPayment() {
+    function hidePaymentField() {
         document.getElementById('package-selector').classList.remove('hidden');
-        document.getElementById('payment-form').classList.add('hidden');
+        document.getElementById('phone-input-area').classList.add('hidden');
     }
 
-    async function triggerPayment() {
-        const phone = document.getElementById('phone_number').value;
-        if(!phone) return alert("Enter M-Pesa Number");
+    async function processPayment() {
+        const phone = document.getElementById('user_phone').value;
+        if(phone.length < 10) return alert("Please enter a valid M-Pesa number");
+
+        const btn = document.getElementById('pay-btn');
+        btn.innerText = "Processing...";
+        btn.disabled = true;
 
         try {
             const configRes = await fetch('/get-payment-config');
@@ -160,43 +171,47 @@
             
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: false 
+                live: false // Set to true for live money
             });
 
             intasend.run({
-                amount: selectedAmount,
+                amount: activeAmount,
                 currency: "KES",
-                label: `CV Check: ${selectedName}`,
-                phone_number: phone
+                label: `CV Check: ${activePack}`,
+                phone_number: phone,
+                email: "customer@cvcheck.co.ke" // Included for SDK stability
             })
-            .on("COMPLETE", () => unlockResults())
-            .on("FAILED", () => alert("Payment Failed"));
-
+            .on("COMPLETE", () => unlockFinalReport())
+            .on("FAILED", () => {
+                alert("Payment Failed");
+                btn.innerText = "Pay Now";
+                btn.disabled = false;
+            });
         } catch (err) { alert("System Error"); }
     }
 
-    async function unlockResults() {
+    async function unlockFinalReport() {
         document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
         document.getElementById('loading-screen').classList.remove('hidden');
-        document.getElementById('loading-text').innerText = "Generating Report...";
+        document.getElementById('loading-text').innerText = "Generating Professional Report...";
 
         try {
             const res = await fetch('/generate-docs', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jd: globalJD, cv: globalCV})
+                body: JSON.stringify({jd: rawJD, cv: rawCV})
             });
             const data = await res.json();
 
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('final-report').classList.remove('hidden');
             
-            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${selectedName}</h4>`;
-            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Keywords</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
+            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${activePack}</h4>`;
+            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Recommended Keywords</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
 
-            if(selectedAmount >= 60) {
-                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Summary</b><p class="text-slate-300">${data.summary}</p></div>
-                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
+            if(activeAmount >= 60) {
+                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">AI Career Strategy</b><p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p></div>
+                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Custom Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
             }
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
