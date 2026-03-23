@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .navy-bg { background-color: #0f172a; }
         .yellow-text { color: #facc15; }
         .yellow-bg { background-color: #facc15; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
@@ -17,42 +18,47 @@
 </head>
 <body>
 
-    <nav class="max-w-6xl mx-auto p-6">
+    <nav class="max-w-6xl mx-auto p-6 flex justify-between items-center">
         <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
     </nav>
 
     <main class="max-w-4xl mx-auto px-6 py-12">
         
-        <!-- STEP 1: INPUT -->
+        <!-- STEP 1: LANDING & UPLOAD -->
         <div id="step-1" class="space-y-12">
             <div class="text-center space-y-4">
                 <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
                 <p class="text-slate-400 text-lg">Find your Match Score in 30 seconds for free.</p>
             </div>
+
             <form id="upload-form" class="grid md:grid-cols-2 gap-8">
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
-                    <textarea id="jd_text" name="jd_text" placeholder="Paste requirements..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+                    <textarea name="jd_text" id="jd_text" placeholder="Paste requirements..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
                 </div>
+
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
-                    <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
-                    <textarea id="cv_text" name="cv_text" placeholder="Or paste CV text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+                    <input type="file" name="cv_file" id="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
+                    <textarea name="cv_text" id="cv_text" placeholder="Or paste CV text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
                 </div>
-                <button type="button" onclick="startAnalysis()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all">Check Match Score (FREE)</button>
+
+                <button type="button" onclick="startAnalysis()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg shadow-2xl shadow-yellow-500/20 hover:scale-[1.01] transition-all">
+                    Check My Match Score (FREE)
+                </button>
             </form>
         </div>
 
-        <!-- LOADING -->
-        <div id="loading-screen" class="hidden text-center py-20">
-            <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Processing...</p>
+        <!-- LOADING SCREEN -->
+        <div id="loading-screen" class="hidden text-center py-20 space-y-8">
+            <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Analyzing Documents...</p>
         </div>
 
-        <!-- STEP 2: FREE RESULTS -->
+        <!-- STEP 2: FREE RESULTS & UPSELL -->
         <div id="step-2" class="hidden animate-up">
             <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
-                <div class="bg-[#0f172a] p-12 text-center">
+                <div class="navy-bg p-12 text-center">
                     <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
                     <h3 id="score" class="text-9xl font-black text-white tracking-tighter">0%</h3>
                     <p id="verdict" class="text-slate-400 mt-6 italic text-lg"></p>
@@ -68,17 +74,19 @@
                             <p id="k-count" class="text-2xl font-black text-slate-900">0</p>
                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keyword Gaps</p>
                         </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center">
-                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase">Scanning...</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">AI Diagnostic</p>
+                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center flex flex-col justify-center items-center">
+                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase px-2 text-center">Scanning...</p>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Critical Issue</p>
                         </div>
                     </div>
 
-                    <div id="package-selector" class="bg-[#0f172a] p-8 rounded-[3rem] space-y-4">
+                    <!-- PACKAGE SELECTOR -->
+                    <div id="package-selector" class="bg-slate-900 p-8 rounded-[3rem] space-y-4">
+                        <p class="text-white text-center text-[10px] font-black uppercase tracking-widest opacity-60">Unlock Full Report</p>
                         <div class="grid md:grid-cols-2 gap-4">
                             <button onclick="showPay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all group">
                                 <b class="block text-white text-lg">Diagnostic</b>
-                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-yellow-500">Unlock Missing Keywords & Fixes</span>
+                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-yellow-500">Missing Keywords + Fixes</span>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
                             </button>
                             <button onclick="showPay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all group">
@@ -90,24 +98,30 @@
                     </div>
 
                     <!-- PHONE INPUT AREA -->
-                    <div id="phone-area" class="hidden bg-[#0f172a] p-8 rounded-[3rem] space-y-6 text-center animate-up">
-                        <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="pack-name" class="yellow-text"></span></p>
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <input type="tel" id="phone" placeholder="07XXXXXXXX" class="flex-1 p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold">
-                            <button id="payBtn" onclick="pay()" class="yellow-bg text-slate-900 font-black px-10 py-5 rounded-2xl uppercase tracking-widest">Pay Now</button>
+                    <div id="phone-area" class="hidden bg-slate-900 p-8 rounded-[3rem] space-y-6 text-center animate-up">
+                        <div>
+                            <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="pack-name" class="yellow-text"></span> Report</p>
+                            <p class="text-slate-500 text-[10px] mt-1">Enter M-Pesa Number below</p>
                         </div>
-                        <p id="pStat" class="text-slate-400 text-[10px] font-bold uppercase"></p>
-                        <button onclick="hidePay()" class="text-slate-500 text-[10px] uppercase font-bold">Cancel</button>
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <input type="tel" id="phone" placeholder="07XXXXXXXX" class="flex-1 p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold focus:ring-2 focus:ring-yellow-500 outline-none">
+                            <button id="payBtn" onclick="pay()" class="yellow-bg text-slate-900 font-black px-10 py-5 rounded-2xl uppercase tracking-widest shadow-xl hover:scale-95 transition-all">Pay Now</button>
+                        </div>
+                        <!-- ERROR DISPLAY BOX -->
+                        <div id="pStat" class="text-center"></div>
+                        
+                        <button onclick="hidePay()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">Back to packages</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- FINAL REPORT -->
+        <!-- STEP 4: FINAL REPORT -->
         <div id="final-report" class="hidden mt-12 space-y-6 pb-24">
-            <div class="glass p-10 rounded-[3rem]" id="report-content"></div>
-            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px]">Analyze Another Job</button>
+            <div class="glass p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
+            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">Analyze Another Job</button>
         </div>
+
     </main>
 
 <script>
@@ -116,29 +130,39 @@
     let pollInterval = null;
 
     async function startAnalysis() {
+        const form = document.getElementById('upload-form');
+        const formData = new FormData(form);
         rawJD = document.getElementById('jd_text').value;
         rawCV = document.getElementById('cv_text').value;
-        const formData = new FormData(document.getElementById('upload-form'));
+
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
 
         try {
             const res = await fetch('/analyze', { method: 'POST', body: formData });
             const data = await res.json();
+            
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
             
-            document.getElementById('score').innerText = (parseInt(data.score) || 0) + "%";
+            // Fix NaN% issue by ensuring integer
+            const score = parseInt(data.score);
+            document.getElementById('score').innerText = (isNaN(score) ? 0 : score) + "%";
+            
             document.getElementById('k-count').innerText = data.missing_count || 0;
-            document.getElementById('e-text').innerText = data.error_text || "NO ERRORS";
+            document.getElementById('e-text').innerText = data.error_text || "NO MAJOR ISSUES";
             document.getElementById('verdict').innerText = data.verdict || "";
             document.getElementById('visibility').innerText = data.visibility || "LOW";
-        } catch (e) { location.reload(); }
+        } catch (e) {
+            alert("Analysis failed. Check your connection.");
+            location.reload(); 
+        }
     }
 
     function showPay(amt, name) {
-        activeAmt = amt; activeName = name;
-        document.getElementById('pack-name').innerText = name;
+        activeAmt = amt;
+        activeName = name;
+        document.getElementById('pack-name').innerText = name.toUpperCase();
         document.getElementById('package-selector').classList.add('hidden');
         document.getElementById('phone-area').classList.remove('hidden');
     }
@@ -146,53 +170,66 @@
     function hidePay() {
         document.getElementById('package-selector').classList.remove('hidden');
         document.getElementById('phone-area').classList.add('hidden');
+        document.getElementById('pStat').innerHTML = "";
     }
 
     async function pay() {
-        const phone = document.getElementById('phone').value;
+        let phone = document.getElementById('phone').value.trim();
         const pStat = document.getElementById('pStat');
         const payBtn = document.getElementById('payBtn');
-        if(!phone) return alert("Enter M-Pesa Number");
 
-        pStat.innerText = "⏳ Initializing STK Push...";
+        if(phone.length < 10) return alert("Enter a valid M-Pesa number");
+
+        // UI Reset
+        pStat.innerHTML = `<span class="yellow-text text-[10px] font-bold uppercase">⏳ Initializing STK Push...</span>`;
         payBtn.disabled = true;
 
         try {
             const res = await fetch('/stkpush', {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ phone, amount: activeAmt })
+                body: JSON.stringify({ phone: phone, amount: activeAmt })
             });
+            
             const data = await res.json();
             
-            if(!data.checkout_id) {
-                pStat.innerText = "❌ Failed. Try again.";
+            // Handle Backend/Provider Errors
+            if (res.status !== 200) {
+                let msg = data.details ? JSON.stringify(data.details) : "Trigger failed";
+                pStat.innerHTML = `
+                    <div class="bg-red-100 text-red-700 p-4 rounded-xl text-[11px] text-left mt-2">
+                        <strong>GATEWAY ERROR:</strong> ${msg}
+                    </div>`;
                 payBtn.disabled = false;
                 return;
             }
 
-            pStat.innerText = "📩 Prompt sent! Enter PIN on your phone...";
+            pStat.innerHTML = `<span class="yellow-text text-[10px] font-bold uppercase animate-pulse">📩 Prompt sent! Enter PIN on your phone...</span>`;
             
+            // Start Polling for payment status
+            if (pollInterval) clearInterval(pollInterval);
             pollInterval = setInterval(async () => {
-                const check = await fetch(`/check-payment/${data.checkout_id}`);
-                const r = await check.json();
-                if(r.status === "paid") {
-                    clearInterval(pollInterval);
-                    pStat.innerText = "✅ Confirmed!";
-                    unlockResults();
-                }
+                try {
+                    const check = await fetch(`/check-payment/${data.checkout_id}`);
+                    const r = await check.json();
+                    if(r.status === "paid") {
+                        clearInterval(pollInterval);
+                        pStat.innerHTML = `<span class="text-green-500 text-[10px] font-bold uppercase">✅ Payment Confirmed!</span>`;
+                        unlockResults();
+                    }
+                } catch (e) { console.error("Polling error"); }
             }, 4000);
 
         } catch (e) { 
-            pStat.innerText = "❌ Error occurred.";
-            payBtn.disabled = false;
+            pStat.innerHTML = `<span class="text-red-500 text-[10px] font-bold uppercase">❌ Connection Error</span>`;
+            payBtn.disabled = false; 
         }
     }
 
     async function unlockResults() {
         document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
         document.getElementById('loading-screen').classList.remove('hidden');
-        document.getElementById('loading-text').innerText = "AI generating report...";
+        document.getElementById('loading-text').innerText = "AI generating your full report...";
 
         try {
             const res = await fetch('/generate-docs', {
@@ -206,15 +243,28 @@
             document.getElementById('final-report').classList.remove('hidden');
             
             let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${activeName}</h4>`;
-            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Keywords</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
+            html += `
+                <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                    <b class="yellow-text text-[10px] uppercase block mb-4">Keywords to include</b>
+                    <p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p>
+                </div>`;
 
             if(activeAmt >= 60) {
-                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Strategy</b><p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p></div>
-                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
+                html += `
+                    <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
+                        <b class="yellow-text text-[10px] uppercase block mb-4">Job-Match Strategy</b>
+                        <p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p>
+                    </div>
+                    <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl">
+                        <b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Optimized Cover Letter</b>
+                        <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">${data.cover_letter}</pre>
+                    </div>`;
             }
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
-        } catch (e) { alert("Generation error."); }
+        } catch (e) { 
+            alert("Error generating report. Please refresh."); 
+        }
     }
 </script>
 </body>
