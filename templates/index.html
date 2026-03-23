@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CV Check | Beat the Robot</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- IntaSend SDK -->
     <script src="https://unpkg.com/intasend-inlinejs-sdk@3.0.4/build/intasend-inline.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -13,6 +14,8 @@
         .yellow-text { color: #facc15; }
         .yellow-bg { background-color: #facc15; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .animate-in { animation: fadeIn 0.5s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="text-slate-200">
@@ -23,7 +26,7 @@
 
     <main class="max-w-4xl mx-auto px-6 py-12">
         
-        <!-- STEP 1: LANDING -->
+        <!-- STEP 1: LANDING & UPLOAD -->
         <div id="step-1" class="space-y-12">
             <div class="text-center space-y-4">
                 <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
@@ -48,14 +51,14 @@
             </form>
         </div>
 
-        <!-- STEP 2: LOADING -->
+        <!-- STEP 2: LOADING SCREEN -->
         <div id="loading-screen" class="hidden text-center py-20 space-y-8">
             <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
             <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Scanning for Bots...</p>
         </div>
 
-        <!-- STEP 3: TEASER & DIAGNOSTIC -->
-        <div id="step-2" class="hidden animate-in zoom-in duration-500">
+        <!-- STEP 3: FREE RESULTS & UPSELL -->
+        <div id="step-2" class="hidden animate-in">
             <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
                 <div class="navy-bg p-12 text-center">
                     <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
@@ -82,23 +85,25 @@
                     <div class="space-y-4 border-l-4 border-yellow-500 pl-6 py-2">
                         <h4 class="font-black text-slate-900 uppercase text-sm tracking-widest">AI Diagnostic Report:</h4>
                         <ul class="text-slate-600 text-sm space-y-2 list-disc ml-4">
-                            <li id="gap-teaser">Scanning...</li>
-                            <li id="format-teaser">Analyzing...</li>
-                            <li><b>Impact Score:</b> Your experience is described as 'Task-based' rather than 'Result-based'.</li>
+                            <li id="gap-teaser">Analyzing requirements...</li>
+                            <li id="format-teaser">Checking file structure...</li>
+                            <li><b>Impact Score:</b> Your bullet points are task-focused. Robots prefer result-focused metrics.</li>
                         </ul>
                     </div>
 
                     <div class="bg-slate-900 p-8 rounded-[3rem] space-y-6">
                         <div class="grid md:grid-cols-2 gap-4">
+                            <!-- Diagnostic Button -->
                             <button onclick="pay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all group">
                                 <b class="block text-white text-lg">Diagnostic</b>
                                 <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-yellow-500">See Missing Keywords</span>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
                             </button>
-                            <button onclick="pay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all relative">
+                            <!-- Pro Bundle Button -->
+                            <button onclick="pay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all relative group">
                                 <span class="absolute -top-3 right-4 bg-yellow-500 text-navy-bg text-[8px] font-black px-2 py-1 rounded">BEST VALUE</span>
                                 <b class="block text-white text-lg">Pro Bundle</b>
-                                <span class="text-slate-400 text-[10px] font-bold uppercase">Full CV & Cover Letter</span>
+                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-white">Full CV & Cover Letter</span>
                                 <b class="block mt-4 text-xl yellow-text">Ksh 60</b>
                             </button>
                         </div>
@@ -107,7 +112,7 @@
             </div>
         </div>
 
-        <!-- STEP 4: FINAL REPORT -->
+        <!-- STEP 4: FINAL UNLOCKED REPORT -->
         <div id="final-report" class="hidden mt-12 space-y-6 pb-24">
             <div class="glass p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
             <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">Analyze Another Job</button>
@@ -116,16 +121,16 @@
     </main>
 
 <script>
-    let globalJD = ""; 
-    let globalCV = "";
+    let rawJD = ""; 
+    let rawCV = "";
 
     async function startAnalysis() {
         const form = document.getElementById('upload-form');
         const formData = new FormData(form);
         
-        // Save to variables for later use (Payment generation)
-        globalJD = document.getElementById('jd_text').value;
-        globalCV = document.getElementById('cv_text').value;
+        // Save text globally so we have it after payment
+        rawJD = document.getElementById('jd_text').value;
+        rawCV = document.getElementById('cv_text').value;
 
         document.getElementById('step-1').classList.add('hidden');
         document.getElementById('loading-screen').classList.remove('hidden');
@@ -137,118 +142,106 @@
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
             
-            // Populate Results
+            // Populate Step 2 UI
             document.getElementById('score').innerText = (data.score || 0) + "%";
             document.getElementById('k-count').innerText = data.missing_count || 0;
             document.getElementById('e-count').innerText = data.errors || 0;
             document.getElementById('verdict').innerText = data.verdict || "";
             document.getElementById('visibility').innerText = data.visibility || "LOW";
-            document.getElementById('gap-teaser').innerText = data.gap_teaser || "Hidden until payment...";
-            document.getElementById('format-teaser').innerText = data.format_teaser || "Hidden until payment...";
-            
-            // Persistence: Store texts in case of reload
-            localStorage.setItem('temp_jd', globalJD);
-            localStorage.setItem('temp_cv', globalCV);
-
+            document.getElementById('gap-teaser').innerText = data.gap_teaser || "Payment required to unlock.";
+            document.getElementById('format-teaser').innerText = data.format_teaser || "Payment required to unlock.";
         } catch (e) { 
-            alert("Analysis failed. Please check your connection."); 
+            alert("Analysis failed. Please ensure all fields are filled."); 
             location.reload(); 
         }
     }
 
     async function pay(amt, packName) {
+        console.log("Initializing IntaSend for:", packName);
         try {
-            // 1. Get Public Key from backend
             const configRes = await fetch('/get-payment-config');
             const config = await configRes.json();
             
             if (!config.public_key) {
-                alert("Payment gateway offline. Please try later.");
+                alert("Error: API Key missing.");
                 return;
             }
 
-            // 2. Initialize IntaSend
             const intasend = new window.IntaSend({
                 public_key: config.public_key,
-                live: false // Set to true for live payments
+                live: false // CHANGE TO true ONLY WHEN READY FOR REAL MONEY
             });
 
-            // 3. Trigger Payment
             intasend.run({
                 amount: amt,
                 currency: "KES",
                 label: `CV Check: ${packName}`,
+                email: "customer@cvcheck.co.ke", // Essential for mobile money processing
+                comment: "Order-" + Math.floor(Math.random() * 9999) // Unique order ID
             })
             .on("COMPLETE", (results) => {
+                console.log("Payment Complete", results);
                 unlockResults(amt, packName);
             })
             .on("FAILED", (results) => {
-                alert("Payment failed. Please try again.");
+                console.error("Payment Failed", results);
+                alert("Payment was not successful. Please try again.");
+            })
+            .on("IN-PROGRESS", () => {
+                console.log("Payment window is active...");
             });
 
         } catch (err) {
-            console.error(err);
-            alert("Could not connect to IntaSend.");
+            console.error("SDK Error:", err);
+            alert("Payment system is currently offline.");
         }
     }
 
     async function unlockResults(amount, packName) {
-        // UI Feedback
+        // Prepare UI for generation
         document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
-        const loadingText = document.getElementById('loading-text');
         document.getElementById('loading-screen').classList.remove('hidden');
-        loadingText.innerText = "Generating Professional Report...";
-
-        const jd = globalJD || localStorage.getItem('temp_jd');
-        const cv = globalCV || localStorage.getItem('temp_cv');
+        document.getElementById('loading-text').innerText = "AI is writing your documents...";
 
         try {
             const res = await fetch('/generate-docs', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jd: jd, cv: cv})
+                body: JSON.stringify({jd: rawJD, cv: rawCV})
             });
             const data = await res.json();
 
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('final-report').classList.remove('hidden');
             
-            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${packName}</h4>`;
+            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${packName} Results</h4>`;
             
-            // Keywords (Available for both packages)
+            // Show Keywords for everyone who pays
             html += `
                 <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
-                    <b class="yellow-text text-[10px] uppercase block mb-4">Missing Priority Keywords</b>
-                    <div class="flex flex-wrap gap-2">
-                        ${data.keywords.map(k => `<span class="bg-slate-900 px-4 py-2 rounded-full text-white font-bold text-xs border border-slate-700">${k}</span>`).join('')}
-                    </div>
+                    <b class="yellow-text text-[10px] uppercase block mb-4">Top Keywords to Add</b>
+                    <p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p>
                 </div>`;
 
-            // Pro Bundle Exclusive
+            // Only show Cover Letter/Summary if they paid for Pro Bundle (60)
             if(amount >= 60) {
                 html += `
                     <div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6">
-                        <b class="yellow-text text-[10px] uppercase block mb-4">Strategic Summary</b>
-                        <p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p>
+                        <b class="yellow-text text-[10px] uppercase block mb-4">AI Career Strategy</b>
+                        <p class="text-slate-300">${data.summary}</p>
                     </div>
                     <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl">
-                        <div class="flex justify-between items-center mb-6">
-                            <b class="text-blue-600 text-[10px] uppercase font-black">Tailored Cover Letter</b>
-                            <button onclick="window.print()" class="text-[10px] font-bold bg-slate-100 px-3 py-1 rounded-lg hover:bg-slate-200">Print/Save</button>
-                        </div>
+                        <b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Tailored Cover Letter</b>
                         <pre class="whitespace-pre-wrap font-sans text-sm leading-relaxed">${data.cover_letter}</pre>
                     </div>`;
             } else {
-                html += `
-                    <div class="text-center p-8 border-2 border-dashed border-slate-700 rounded-3xl">
-                        <p class="text-slate-500 text-xs">Upgrade to Pro Bundle to unlock the Cover Letter and Strategy.</p>
-                    </div>`;
+                html += `<p class="text-slate-500 text-center text-xs">Upgrade to Pro Bundle for your custom Cover Letter.</p>`;
             }
             
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
         } catch (e) { 
-            alert("Error generating documents. Please contact support."); 
+            alert("Error generating documents. Please refresh."); 
         }
     }
 </script>
