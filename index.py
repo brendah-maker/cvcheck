@@ -7,7 +7,6 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
-# Initialize Groq
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @app.route('/')
@@ -16,7 +15,6 @@ def index():
 
 @app.route('/get-payment-config')
 def get_config():
-    # Ensure this matches your Render Environment Variable name
     key = os.environ.get("INTASEND_PUBLISHABLE_KEY")
     return jsonify({"public_key": key})
 
@@ -35,15 +33,14 @@ def analyze():
                 return jsonify({"error": "PDF parse error"}), 400
 
     try:
-        # STRICT PROMPT FOR CONSISTENCY
         sys_prompt = (
-            "You are a strict ATS parser. Analyze CV vs JD. "
-            "Return ONLY JSON. Rules:\n"
-            "1. score: MUST be a whole number (0-100). Do not use decimals.\n"
-            "2. visibility: 'HIGH', 'MEDIUM', or 'LOW'.\n"
-            "3. missing_count: Number of missing skills (Integer).\n"
-            "4. verdict: 5-7 words maximum.\n"
-            "5. error_text: The single biggest reason for a low score (e.g., 'Missing Cloud experience')."
+            "You are a strict ATS logic engine. Analyze CV vs JD. "
+            "Return ONLY JSON with these exact keys: "
+            "score (Integer 0-100, NO strings, NO %), "
+            "visibility ('HIGH', 'MEDIUM', or 'LOW'), "
+            "missing_count (Integer), "
+            "verdict (Short string), "
+            "error_text (Short string describing the main issue)."
         )
         
         response = client.chat.completions.create(
@@ -52,12 +49,27 @@ def analyze():
                 {"role": "user", "content": f"JD: {jd_text[:1200]}\nCV: {cv_text[:1800]}"}
             ],
             model="llama-3.1-8b-instant",
-            temperature=0,  # CRITICAL: Forces consistent answers
+            temperature=0, 
             response_format={"type": "json_object"}
         )
-        return jsonify(json.loads(response.choices[0].message.content))
+        
+        result = json.loads(response.choices[0].message.content)
+        
+        # --- ROBUST SCORE PARSING (Prevents NaN) ---
+        raw_score = result.get('score', 0)
+        try:
+            if isinstance(raw_score, str):
+                # Remove any non-digits (like % or text) and convert to int
+                clean_score = "".join(filter(str.isdigit, raw_score))
+                result['score'] = int(clean_score) if clean_score else 0
+            else:
+                result['score'] = int(raw_score)
+        except:
+            result['score'] = 0
+            
+        return jsonify(result)
     except:
-        return jsonify({"score": 0, "verdict": "Try again"}), 500
+        return jsonify({"score": 0, "verdict": "Internal error. Try again."}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
