@@ -9,7 +9,7 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
-# Database for tracking
+# Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///payments.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -22,14 +22,19 @@ with app.app_context():
     db.create_all()
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
-PUBLISHABLE_KEY = os.environ.get("INTASEND_PUBLISHABLE_KEY")
-SECRET_KEY = os.environ.get("INTASEND_SECRET_KEY")
+# MAKE SURE THESE NAMES MATCH YOUR RENDER ENV VARS
+INTASEND_PUBLISHABLE_KEY = os.environ.get("INTASEND_PUBLISHABLE_KEY")
+INTASEND_SECRET_KEY = os.environ.get("INTASEND_SECRET_KEY")
 IS_LIVE = os.environ.get("IS_LIVE", "False").lower() == "true"
 API_BASE = "https://api.intasend.com/api/v1" if IS_LIVE else "https://sandbox.intasend.com/api/v1"
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/get-payment-config')
+def get_config():
+    return jsonify({"public_key": INTASEND_PUBLISHABLE_KEY})
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
@@ -49,55 +54,56 @@ def analyze():
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
-    except:
-        return jsonify({"score": 0, "verdict": "Error"}), 500
+    except Exception as e:
+        return jsonify({"score": 0, "verdict": "AI Error"}), 500
 
 @app.route('/stkpush', methods=['POST'])
 def stk_push():
-    data = request.json
-    phone = data.get("phone", "").strip()
-    amount = data.get("amount", 20)
-    
-    # Format Phone
-    if phone.startswith("0"): phone = "254" + phone[1:]
-    elif not phone.startswith("254"): phone = "254" + phone
-
-    payload = {
-        "public_key": PUBLISHABLE_KEY,
-        "amount": amount,
-        "phone_number": phone,
-        "api_ref": "CVCheck"
-    }
-    headers = {
-        "Authorization": f"Bearer {SECRET_KEY}",
-        "Content-Type": "application/json"
-    }
-    
     try:
+        data = request.get_json()
+        phone = data.get("phone", "").strip()
+        amount = data.get("amount", 20)
+        
+        # Phone Formatting
+        if phone.startswith("0"): phone = "254" + phone[1:]
+        elif not phone.startswith("254"): phone = "254" + phone
+
+        payload = {
+            "public_key": INTASEND_PUBLISHABLE_KEY,
+            "amount": amount,
+            "phone_number": phone,
+            "api_ref": "CVCheck"
+        }
+        headers = {
+            "Authorization": f"Bearer {INTASEND_SECRET_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        # Log request for debugging
+        print(f"DEBUG: Sending to {API_BASE} with phone {phone}")
+        
         res = requests.post(f"{API_BASE}/payment/mpesa-stk-push/", json=payload, headers=headers)
         res_data = res.json()
         
-        # If IntaSend returns an error (400, 401, etc.)
+        # Log exact error from IntaSend to Render Logs
         if res.status_code != 200:
-            error_detail = res_data.get('errors') or res_data.get('detail') or "Unknown Provider Error"
-            return jsonify({
-                "error": "IntaSend rejected the request",
-                "details": error_detail
-            }), res.status_code
+            print(f"INTASEND ERROR: {res_data}")
+            return jsonify({"error": "Rejected", "details": res_data}), 400
 
         inv_id = res_data.get("invoice", {}).get("invoice_id")
         if inv_id:
             db.session.add(Payment(id=inv_id, status="pending"))
             db.session.commit()
             return jsonify({"checkout_id": inv_id})
-            
-        return jsonify({"error": "No invoice ID returned"}), 400
+        
+        return jsonify({"error": "No Invoice ID"}), 400
     except Exception as e:
-        return jsonify({"error": "Server connection error", "details": str(e)}), 500
+        print(f"SERVER ERROR: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/check-payment/<id>')
 def check_payment(id):
-    headers = {"Authorization": f"Bearer {SECRET_KEY}"}
+    headers = {"Authorization": f"Bearer {INTASEND_SECRET_KEY}"}
     try:
         res = requests.get(f"{API_BASE}/payment/status/{id}/", headers=headers)
         state = res.json().get("invoice", {}).get("state")
