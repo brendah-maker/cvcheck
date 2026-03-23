@@ -7,6 +7,7 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
+# Initialize Groq
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 @app.route('/')
@@ -15,6 +16,7 @@ def index():
 
 @app.route('/get-payment-config')
 def get_config():
+    # Ensure this matches your Render Environment Variable name
     key = os.environ.get("INTASEND_PUBLISHABLE_KEY")
     return jsonify({"public_key": key})
 
@@ -30,50 +32,45 @@ def analyze():
                 with pdfplumber.open(io.BytesIO(file.read())) as pdf:
                     cv_text = "".join([page.extract_text() or "" for page in pdf.pages])
             except:
-                return jsonify({"error": "PDF read error"}), 400
+                return jsonify({"error": "PDF parse error"}), 400
 
     try:
-        # CONCRETE & STRICT PROMPT FOR CONSISTENCY
+        # STRICT PROMPT FOR CONSISTENCY
         sys_prompt = (
-            "You are a strict ATS (Applicant Tracking System). "
-            "Analyze the CV vs JD and return ONLY JSON. "
-            "Calculation Rules:\n"
-            "1. Score: Must be a WHOLE NUMBER (Integer) between 0 and 100 based on keyword match density.\n"
-            "2. Visibility: Must be 'HIGH', 'MEDIUM', or 'LOW'.\n"
-            "3. Missing Count: Integer count of hard skills found in JD but not in CV.\n"
-            "4. Error Count: Integer count (number of layout/grammar issues).\n"
-            "5. Verdict: One short sentence.\n"
-            "6. Error Text: A short description of the most critical error."
+            "You are a strict ATS parser. Analyze CV vs JD. "
+            "Return ONLY JSON. Rules:\n"
+            "1. score: MUST be a whole number (0-100). Do not use decimals.\n"
+            "2. visibility: 'HIGH', 'MEDIUM', or 'LOW'.\n"
+            "3. missing_count: Number of missing skills (Integer).\n"
+            "4. verdict: 5-7 words maximum.\n"
+            "5. error_text: The single biggest reason for a low score (e.g., 'Missing Cloud experience')."
         )
-        
-        user_prompt = f"JD: {jd_text[:1200]}\n\nCV: {cv_text[:1800]}"
         
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user", "content": f"JD: {jd_text[:1200]}\nCV: {cv_text[:1800]}"}
             ],
             model="llama-3.1-8b-instant",
-            temperature=0, # Zero temperature ensures consistency
+            temperature=0,  # CRITICAL: Forces consistent answers
             response_format={"type": "json_object"}
         )
-        
-        result = json.loads(response.choices[0].message.content)
-        return jsonify(result)
+        return jsonify(json.loads(response.choices[0].message.content))
     except:
-        return jsonify({"score": 0, "verdict": "Check inputs"}), 500
+        return jsonify({"score": 0, "verdict": "Try again"}), 500
 
 @app.route('/generate-docs', methods=['POST'])
 def generate_docs():
     data = request.json
     try:
-        sys_prompt = "Return ONLY JSON with keys: keywords (list), summary (text), cover_letter (text)."
+        sys_prompt = "Return ONLY JSON: {keywords:[], summary:'', cover_letter:''}"
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": f"JD: {data.get('jd')[:1000]} CV: {data.get('cv')[:1000]}"}
             ],
             model="llama-3.3-70b-versatile",
+            temperature=0,
             response_format={"type": "json_object"}
         )
         return jsonify(json.loads(response.choices[0].message.content))
