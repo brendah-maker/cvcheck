@@ -9,23 +9,21 @@ from groq import Groq
 
 app = Flask(__name__, template_folder='templates')
 
-# --- DATABASE CONFIG (To track payments) ---
+# Database for tracking
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///payments.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 class Payment(db.Model):
-    id = db.Column(db.String(100), primary_key=True) # Invoice ID
+    id = db.Column(db.String(100), primary_key=True)
     status = db.Column(db.String(20), default="pending")
 
 with app.app_context():
     db.create_all()
 
-# --- API KEYS ---
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 PUBLISHABLE_KEY = os.environ.get("INTASEND_PUBLISHABLE_KEY")
 SECRET_KEY = os.environ.get("INTASEND_SECRET_KEY")
-# Set this to True in Render Env Vars when ready for real money
 IS_LIVE = os.environ.get("IS_LIVE", "False").lower() == "true"
 API_BASE = "https://api.intasend.com/api/v1" if IS_LIVE else "https://sandbox.intasend.com/api/v1"
 
@@ -42,9 +40,8 @@ def analyze():
         if file.filename != '':
             with pdfplumber.open(io.BytesIO(file.read())) as pdf:
                 cv_text = "".join([page.extract_text() or "" for page in pdf.pages])
-
     try:
-        sys_prompt = "Strict ATS. Return ONLY JSON: {score: int, visibility: str, missing_count: int, verdict: str, error_text: str}"
+        sys_prompt = "Return ONLY JSON: {score: int, visibility: str, missing_count: int, verdict: str, error_text: str}"
         response = client.chat.completions.create(
             messages=[{"role": "system", "content": sys_prompt}, {"role": "user", "content": f"JD: {jd_text[:1000]} CV: {cv_text[:1500]}"}],
             model="llama-3.1-8b-instant",
@@ -55,14 +52,13 @@ def analyze():
     except:
         return jsonify({"score": 0, "verdict": "Error"}), 500
 
-# --- PAYMENT LOGIC (SheriaHub Style) ---
 @app.route('/stkpush', methods=['POST'])
 def stk_push():
     data = request.json
     phone = data.get("phone", "").strip()
     amount = data.get("amount", 20)
     
-    # Format Phone to 254...
+    # Format Phone
     if phone.startswith("0"): phone = "254" + phone[1:]
     elif not phone.startswith("254"): phone = "254" + phone
 
@@ -72,20 +68,32 @@ def stk_push():
         "phone_number": phone,
         "api_ref": "CVCheck"
     }
-    headers = {"Authorization": f"Bearer {SECRET_KEY}", "Content-Type": "application/json"}
+    headers = {
+        "Authorization": f"Bearer {SECRET_KEY}",
+        "Content-Type": "application/json"
+    }
     
     try:
         res = requests.post(f"{API_BASE}/payment/mpesa-stk-push/", json=payload, headers=headers)
         res_data = res.json()
-        inv_id = res_data.get("invoice", {}).get("invoice_id")
         
+        # If IntaSend returns an error (400, 401, etc.)
+        if res.status_code != 200:
+            error_detail = res_data.get('errors') or res_data.get('detail') or "Unknown Provider Error"
+            return jsonify({
+                "error": "IntaSend rejected the request",
+                "details": error_detail
+            }), res.status_code
+
+        inv_id = res_data.get("invoice", {}).get("invoice_id")
         if inv_id:
             db.session.add(Payment(id=inv_id, status="pending"))
             db.session.commit()
             return jsonify({"checkout_id": inv_id})
-        return jsonify({"error": "Failed to trigger"}), 400
+            
+        return jsonify({"error": "No invoice ID returned"}), 400
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Server connection error", "details": str(e)}), 500
 
 @app.route('/check-payment/<id>')
 def check_payment(id):
