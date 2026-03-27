@@ -3,153 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CV Check | Beat the Robot</title>
+    
+    <!-- SEO META TAGS -->
+    <title>Free ATS Resume Checker | AI CV Match Score & Optimizer</title>
+    <meta name="description" content="Use our AI-powered ATS checker to beat the robot. Get an instant CV match score, identify missing keywords, and generate a tailored cover letter for free.">
+    <meta name="keywords" content="ATS Checker, Resume Optimizer, CV Match Score, Free ATS Scan, Job Application Tool, Llama-3 AI">
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #e2e8f0; scroll-behavior: smooth; }
-        .yellow-text { color: #facc15; }
-        .yellow-bg { background-color: #facc15; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .animate-up { animation: slideUp 0.5s ease-out forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; scroll-behavior: smooth; }
+        .yellow-text { color: #fbbf24; }
+        .yellow-bg { background-color: #fbbf24; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.05); }
+        .glow:hover { box-shadow: 0 0 30px rgba(251, 191, 36, 0.15); transition: all 0.3s ease; }
+        
+        /* Circular Progress Animation */
+        .circle-bg { fill: none; stroke: #1e293b; stroke-width: 3; }
+        .circle-progress { fill: none; stroke: #fbbf24; stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 1s ease-in-out; }
+        
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="selection:bg-yellow-500/30">
 
-    <nav class="max-w-6xl mx-auto p-6">
-        <h1 class="text-2xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
+    <!-- NAVIGATION -->
+    <nav class="sticky top-0 z-50 glass border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-extrabold tracking-tighter text-white uppercase">CV<span class="yellow-text">Check</span></h1>
+            <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <a href="#how-it-works" class="hover:text-yellow-500 transition">How it Works</a>
+                <a href="#faq" class="hover:text-yellow-500 transition">FAQ</a>
+            </div>
+        </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-6 py-12">
+    <main class="max-w-5xl mx-auto px-6 pt-16 pb-24">
         
-        <!-- STEP 1: INPUT FORM -->
-        <div id="input-section" class="space-y-12">
-            <div class="text-center space-y-4">
-                <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
-                <p class="text-slate-400 text-lg">Instant AI analysis. No signups. No payments.</p>
+        <!-- HERO SECTION -->
+        <header id="input-section" class="text-center space-y-10 mb-20 fade-in">
+            <div class="space-y-4">
+                <span class="px-4 py-2 rounded-full bg-yellow-500/10 text-yellow-500 text-[10px] font-black uppercase tracking-[0.2em]">Powered by Llama-3.3 70B AI</span>
+                <h2 class="text-5xl md:text-7xl font-black text-white leading-[1.1]">Beat the <span class="yellow-text">ATS Robot.</span></h2>
+                <p class="text-slate-400 text-lg max-w-2xl mx-auto">Upload your CV and the job description to see if you'll pass the automated screening. Instant, professional, and 100% free.</p>
             </div>
             
-            <form id="upload-form" class="grid md:grid-cols-2 gap-8">
-                <div class="glass p-8 rounded-[2.5rem]">
-                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
-                    <textarea id="jd_text" name="jd_text" placeholder="Paste the job requirements here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+            <form id="upload-form" class="grid md:grid-cols-2 gap-6 text-left">
+                <div class="glass p-6 rounded-3xl glow">
+                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-3">Target Job Description</label>
+                    <textarea id="jd_text" name="jd_text" placeholder="Paste the full job requirements here..." class="w-full p-4 bg-slate-900/80 border border-slate-700 rounded-xl h-64 text-slate-200 text-sm focus:ring-2 focus:ring-yellow-500 outline-none transition-all"></textarea>
                 </div>
-                <div class="glass p-8 rounded-[2.5rem]">
-                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
-                    <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
-                    <textarea id="cv_text" name="cv_text" placeholder="Or paste your resume text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+                <div class="glass p-6 rounded-3xl glow">
+                    <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-3">Your Resume (PDF or Text)</label>
+                    <div class="mb-4">
+                        <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-yellow-500/10 file:text-yellow-500 hover:file:bg-yellow-500/20 cursor-pointer">
+                    </div>
+                    <textarea id="cv_text" name="cv_text" placeholder="Or paste your resume content here..." class="w-full p-4 bg-slate-900/80 border border-slate-700 rounded-xl h-40 text-slate-200 text-sm focus:ring-2 focus:ring-yellow-500 outline-none transition-all"></textarea>
                 </div>
-                <button type="button" onclick="runDiagnostic()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all shadow-xl shadow-yellow-500/20">Analyze My CV</button>
+                <button type="button" onclick="runDiagnostic()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-5 rounded-2xl uppercase tracking-widest text-sm hover:brightness-110 active:scale-[0.98] transition-all shadow-xl shadow-yellow-500/20">Analyze My Match Score</button>
             </form>
-        </div>
+        </header>
 
         <!-- LOADING SCREEN -->
-        <div id="loading-screen" class="hidden text-center py-20 animate-up">
-            <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-            <p class="text-xl font-black yellow-text uppercase tracking-widest">Llama-3 AI is scanning your match...</p>
-            <p class="text-slate-500 mt-2">Checking keywords, experience, and formatting.</p>
+        <div id="loading-screen" class="hidden text-center py-32 fade-in">
+            <div class="relative inline-block">
+                <div class="w-24 h-24 border-4 border-slate-800 rounded-full"></div>
+                <div class="absolute top-0 left-0 w-24 h-24 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <p class="mt-8 text-xl font-black yellow-text uppercase tracking-widest">Scanning Your Future...</p>
+            <p class="text-slate-500 mt-2 italic">Llama-3 AI is comparing 42 unique data points.</p>
         </div>
 
         <!-- RESULTS SECTION -->
-        <div id="results-section" class="hidden space-y-8 pb-20">
-            <!-- Score Card -->
-            <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
-                <div class="bg-[#0f172a] p-12 text-center">
-                    <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Final Match Score</p>
-                    <h3 id="score-display" class="text-9xl font-black text-white tracking-tighter">0%</h3>
-                    <p id="verdict-display" class="text-slate-400 mt-6 italic text-lg max-w-lg mx-auto"></p>
+        <article id="results-section" class="hidden space-y-10 fade-in">
+            
+            <div class="grid md:grid-cols-3 gap-6 items-stretch">
+                <!-- SCORE CIRCLE -->
+                <div class="glass p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
+                    <div class="relative mb-4">
+                        <svg class="w-32 h-32 transform -rotate-90">
+                            <circle class="circle-bg" cx="64" cy="64" r="58"></circle>
+                            <circle id="score-circle" class="circle-progress" cx="64" cy="64" r="58" stroke-dasharray="0 364"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="score-text" class="text-3xl font-black text-white">0%</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Match Strength</p>
                 </div>
-                
-                <div class="p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
-                        <b class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Missing Keywords</b>
-                        <div id="keywords-list" class="flex flex-wrap gap-2"></div>
-                    </div>
-                    <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
-                        <b class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">ATS Visibility</b>
-                        <p id="visibility-display" class="text-2xl font-black text-slate-900"></p>
-                        <p class="text-sm text-slate-500 mt-2">Likelihood of passing the automated screening.</p>
-                    </div>
+
+                <!-- VERDICT CARD -->
+                <div class="md:col-span-2 glass p-8 rounded-[2.5rem] flex flex-col justify-center">
+                    <p id="visibility-badge" class="inline-block w-max px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest mb-4">Low Visibility</p>
+                    <h3 id="verdict-display" class="text-3xl font-bold text-white leading-tight"></h3>
+                    <p class="text-slate-400 mt-4 text-sm italic">"The robot's blunt perspective on your current application."</p>
                 </div>
             </div>
 
-            <!-- Deep Dive -->
-            <div class="glass p-10 rounded-[3rem] space-y-8 animate-up" style="animation-delay: 0.2s;">
-                <div>
-                    <b class="yellow-text text-[10px] uppercase font-black tracking-widest block mb-4">Improvement Strategy</b>
-                    <p id="strategy-display" class="text-xl text-white font-semibold leading-relaxed"></p>
-                </div>
-                
-                <hr class="border-slate-800">
-
-                <div>
-                    <b class="yellow-text text-[10px] uppercase font-black tracking-widest block mb-4">Tailored Cover Letter</b>
-                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800">
-                        <pre id="cover-letter-display" class="whitespace-pre-wrap font-sans text-sm text-slate-300 leading-relaxed"></pre>
-                    </div>
-                </div>
-
-                <button onclick="window.location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">← Analyze Another Job</button>
+            <!-- KEYWORDS & STRATEGY -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <section class="glass p-8 rounded-[2.5rem]">
+                    <h4 class="text-xs font-black yellow-text uppercase tracking-widest mb-6">Missing Keywords</h4>
+                    <div id="keywords-list" class="flex flex-wrap gap-2"></div>
+                </section>
+                <section class="glass p-8 rounded-[2.5rem]">
+                    <h4 class="text-xs font-black yellow-text uppercase tracking-widest mb-6">Optimization Strategy</h4>
+                    <div id="strategy-display" class="text-slate-300 text-sm leading-relaxed space-y-3"></div>
+                </section>
             </div>
-        </div>
+
+            <!-- COVER LETTER -->
+            <section class="glass rounded-[2.5rem] overflow-hidden">
+                <div class="p-8 border-b border-slate-800 flex justify-between items-center">
+                    <h4 class="text-xs font-black yellow-text uppercase tracking-widest">AI-Generated Cover Letter</h4>
+                    <button onclick="copyCoverLetter()" class="text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                        Copy
+                    </button>
+                </div>
+                <div class="p-8 bg-slate-900/30">
+                    <pre id="cover-letter-display" class="whitespace-pre-wrap font-sans text-sm text-slate-300 leading-relaxed"></pre>
+                </div>
+            </section>
+
+            <div class="text-center">
+                <button onclick="window.location.reload()" class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] hover:text-white transition">← New Analysis</button>
+            </div>
+        </article>
+
+        <!-- SEO SECTION: HOW IT WORKS -->
+        <section id="how-it-works" class="mt-32 pt-20 border-t border-slate-900">
+            <h3 class="text-3xl font-black text-center mb-16">How Our <span class="yellow-text">ATS Analyzer</span> Works</h3>
+            <div class="grid md:grid-cols-3 gap-12 text-center">
+                <div class="space-y-4">
+                    <div class="text-4xl yellow-text font-black opacity-20">01</div>
+                    <h5 class="font-bold">Text Extraction</h5>
+                    <p class="text-sm text-slate-400">We use OCR and PDF parsing to pull the skills and experience from your resume just like an ATS would.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-4xl yellow-text font-black opacity-20">02</div>
+                    <h5 class="font-bold">Semantic Mapping</h5>
+                    <p class="text-sm text-slate-400">Our Llama-3 AI compares your profile against the job's hard skills and soft requirements.</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="text-4xl yellow-text font-black opacity-20">03</div>
+                    <h5 class="font-bold">Match Scoring</h5>
+                    <p class="text-sm text-slate-400">We generate a detailed score and reveal the exact keywords the robot is looking for.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEO SECTION: FAQ -->
+        <section id="faq" class="mt-32 glass p-10 rounded-[3rem]">
+            <h3 class="text-2xl font-black mb-8 text-center uppercase tracking-widest">Common Questions</h3>
+            <div class="grid md:grid-cols-2 gap-8 text-sm">
+                <div class="space-y-2">
+                    <h6 class="font-bold text-white">Is this tool actually free?</h6>
+                    <p class="text-slate-400">Yes. We believe everyone deserves a fair chance at their dream job without paying for expensive tools.</p>
+                </div>
+                <div class="space-y-2">
+                    <h6 class="font-bold text-white">How accurate is the Match Score?</h6>
+                    <p class="text-slate-400">Our scoring uses the same logic as industry-standard ATS (Applicant Tracking Systems), focusing on keywords and title relevance.</p>
+                </div>
+                <div class="space-y-2">
+                    <h6 class="font-bold text-white">Do you store my data?</h6>
+                    <p class="text-slate-400">No. Your CV and Job Description are processed in real-time and deleted as soon as you close the page.</p>
+                </div>
+                <div class="space-y-2">
+                    <h6 class="font-bold text-white">Will this help me pass the "Robot"?</h6>
+                    <p class="text-slate-400">Yes. By adding the missing keywords we identify, your CV becomes highly visible to recruiters searching their database.</p>
+                </div>
+            </div>
+        </section>
+
     </main>
+
+    <footer class="text-center py-12 border-t border-slate-900 text-[10px] text-slate-600 font-bold uppercase tracking-[0.4em]">
+        © 2024 CVCheck • Built for the modern job seeker
+    </footer>
 
     <script>
         async function runDiagnostic() {
             const form = document.getElementById('upload-form');
             const formData = new FormData(form);
-            
-            // Validate inputs
             const jd = document.getElementById('jd_text').value;
             const cv = document.getElementById('cv_text').value;
             const file = document.getElementById('cv_file').files[0];
 
             if (!jd || (!cv && !file)) {
-                alert("Please provide both a Job Description and your Resume.");
-                return;
+                return alert("Please provide both a Job Description and a Resume.");
             }
 
-            // Switch UI to loading
             document.getElementById('input-section').classList.add('hidden');
             document.getElementById('loading-screen').classList.remove('hidden');
 
             try {
-                const response = await fetch('/analyze', {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetch('/analyze', { method: 'POST', body: formData });
                 const data = await response.json();
-
                 if (data.error) throw new Error(data.error);
 
-                // Populate UI
-                document.getElementById('score-display').innerText = data.score + "%";
-                document.getElementById('verdict-display').innerText = `"${data.verdict}"`;
-                document.getElementById('visibility-display').innerText = data.visibility;
+                // Update UI
+                const score = data.score || 0;
+                document.getElementById('score-text').innerText = score + "%";
+                document.getElementById('verdict-display').innerText = data.verdict;
                 document.getElementById('strategy-display').innerText = data.strategy;
                 document.getElementById('cover-letter-display').innerText = data.cover_letter;
+                
+                // Visibility Badge
+                const badge = document.getElementById('visibility-badge');
+                badge.innerText = data.visibility + " Visibility";
+                badge.className = `inline-block w-max px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 ${
+                    score > 70 ? 'bg-green-500/10 text-green-500' : score > 40 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-red-500/10 text-red-500'
+                }`;
 
-                // Populate Keywords
-                const kwContainer = document.getElementById('keywords-list');
-                kwContainer.innerHTML = '';
+                // Animation for Score Circle
+                const circle = document.getElementById('score-circle');
+                const circumference = 2 * Math.PI * 58;
+                const offset = circumference - (score / 100) * circumference;
+                circle.style.strokeDasharray = `${circumference} ${circumference}`;
+                circle.style.strokeDashoffset = offset;
+
+                // Keywords
+                const kwList = document.getElementById('keywords-list');
+                kwList.innerHTML = '';
                 data.missing_keywords.forEach(kw => {
-                    const span = document.createElement('span');
-                    span.className = "px-4 py-2 bg-red-100 text-red-600 rounded-full text-xs font-bold";
-                    span.innerText = kw;
-                    kwContainer.appendChild(span);
+                    const el = document.createElement('span');
+                    el.className = "px-3 py-1.5 bg-slate-800 text-slate-300 rounded-lg text-xs font-semibold border border-slate-700";
+                    el.innerText = kw;
+                    kwList.appendChild(el);
                 });
 
-                // Show Results
                 document.getElementById('loading-screen').classList.add('hidden');
                 document.getElementById('results-section').classList.remove('hidden');
                 window.scrollTo(0, 0);
 
             } catch (err) {
-                alert("Analysis Error: " + err.message);
+                alert("Error: " + err.message);
                 window.location.reload();
             }
+        }
+
+        function copyCoverLetter() {
+            const text = document.getElementById('cover-letter-display').innerText;
+            navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
         }
     </script>
 </body>
