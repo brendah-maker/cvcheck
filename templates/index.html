@@ -7,12 +7,12 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #e2e8f0; scroll-behavior: smooth; }
         .yellow-text { color: #facc15; }
         .yellow-bg { background-color: #facc15; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .animate-up { animation: slideUp 0.4s ease-out forwards; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-up { animation: slideUp 0.5s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -24,217 +24,133 @@
     <main class="max-w-4xl mx-auto px-6 py-12">
         
         <!-- STEP 1: INPUT FORM -->
-        <div id="step-1" class="space-y-12">
+        <div id="input-section" class="space-y-12">
             <div class="text-center space-y-4">
                 <h2 class="text-5xl md:text-7xl font-black text-white leading-tight">Is a Robot <br> <span class="yellow-text">rejecting your CV?</span></h2>
-                <p class="text-slate-400 text-lg">Find your Match Score in 30 seconds for free.</p>
+                <p class="text-slate-400 text-lg">Instant AI analysis. No signups. No payments.</p>
             </div>
+            
             <form id="upload-form" class="grid md:grid-cols-2 gap-8">
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Job Description</label>
-                    <textarea id="jd_text" name="jd_text" placeholder="Paste requirements..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+                    <textarea id="jd_text" name="jd_text" placeholder="Paste the job requirements here..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-64 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
                 </div>
                 <div class="glass p-8 rounded-[2.5rem]">
                     <label class="block text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Your CV (PDF)</label>
                     <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="w-full text-xs text-slate-400 mb-6">
-                    <textarea id="cv_text" name="cv_text" placeholder="Or paste CV text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
+                    <textarea id="cv_text" name="cv_text" placeholder="Or paste your resume text..." class="w-full p-4 bg-slate-900/50 border-none rounded-2xl h-44 text-white text-sm focus:ring-2 focus:ring-yellow-500 outline-none"></textarea>
                 </div>
-                <button type="button" onclick="startAnalysis()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all">Check Match Score (FREE)</button>
+                <button type="button" onclick="runDiagnostic()" class="md:col-span-2 w-full yellow-bg text-slate-900 font-black py-6 rounded-3xl uppercase tracking-widest text-lg hover:scale-[1.01] transition-all shadow-xl shadow-yellow-500/20">Analyze My CV</button>
             </form>
         </div>
 
         <!-- LOADING SCREEN -->
-        <div id="loading-screen" class="hidden text-center py-20">
+        <div id="loading-screen" class="hidden text-center py-20 animate-up">
             <div class="inline-block w-20 h-20 border-8 border-yellow-500 border-t-transparent rounded-full animate-spin mb-8"></div>
-            <p id="loading-text" class="text-xl font-black yellow-text uppercase tracking-widest">Processing AI Analysis...</p>
+            <p class="text-xl font-black yellow-text uppercase tracking-widest">Llama-3 AI is scanning your match...</p>
+            <p class="text-slate-500 mt-2">Checking keywords, experience, and formatting.</p>
         </div>
 
-        <!-- STEP 2: FREE RESULTS -->
-        <div id="step-2" class="hidden animate-up">
+        <!-- RESULTS SECTION -->
+        <div id="results-section" class="hidden space-y-8 pb-20">
+            <!-- Score Card -->
             <div class="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl">
                 <div class="bg-[#0f172a] p-12 text-center">
-                    <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">ATS Match Score</p>
-                    <h3 id="score" class="text-9xl font-black text-white tracking-tighter">0%</h3>
-                    <p id="verdict" class="text-slate-400 mt-6 italic text-lg"></p>
+                    <p class="text-[10px] font-black yellow-text uppercase tracking-widest mb-4">Final Match Score</p>
+                    <h3 id="score-display" class="text-9xl font-black text-white tracking-tighter">0%</h3>
+                    <p id="verdict-display" class="text-slate-400 mt-6 italic text-lg max-w-lg mx-auto"></p>
                 </div>
                 
-                <div class="p-10 bg-white space-y-8 text-slate-900">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="bg-red-50 p-6 rounded-3xl border border-red-100 text-center">
-                            <p class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Visibility</p>
-                            <p id="visibility" class="text-lg font-black text-red-600">--</p>
-                        </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center">
-                            <p id="k-count" class="text-2xl font-black text-slate-900">0</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Keyword Gaps</p>
-                        </div>
-                        <div class="bg-slate-50 p-6 rounded-3xl border border-slate-100 text-center flex flex-col justify-center items-center">
-                            <p id="e-text" class="text-xs font-bold text-slate-800 leading-tight uppercase px-2 text-center">Scanning...</p>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Critical Issue</p>
-                        </div>
+                <div class="p-10 bg-white grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
+                        <b class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Missing Keywords</b>
+                        <div id="keywords-list" class="flex flex-wrap gap-2"></div>
                     </div>
-
-                    <!-- PACKAGE SELECTOR -->
-                    <div id="package-selector" class="bg-[#0f172a] p-8 rounded-[3rem] space-y-4">
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <button onclick="showPay(20, 'Diagnostic')" class="p-6 border-2 border-slate-700 rounded-3xl text-left hover:border-yellow-500 transition-all group">
-                                <b class="block text-white text-lg">Diagnostic</b>
-                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-yellow-500">Unlock Missing Keywords & Fixes</span>
-                                <b class="block mt-4 text-xl yellow-text">Ksh 20</b>
-                            </button>
-                            <button onclick="showPay(60, 'Pro Bundle')" class="p-6 border-2 border-yellow-500 rounded-3xl text-left bg-yellow-500/10 hover:bg-yellow-500/20 transition-all group">
-                                <b class="block text-white text-lg">Pro Bundle</b>
-                                <span class="text-slate-400 text-[10px] font-bold uppercase group-hover:text-white">Keywords + Strategy + Cover Letter</span>
-                                <b class="block mt-4 text-xl yellow-text">Ksh 60</b>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- PHONE INPUT & PAYMENT STATUS -->
-                    <div id="phone-area" class="hidden bg-[#0f172a] p-8 rounded-[3rem] space-y-6 text-center animate-up">
-                        <p class="text-white font-black uppercase tracking-widest text-xs">Unlock <span id="pack-name" class="yellow-text"></span></p>
-                        <div class="flex flex-col md:flex-row gap-3">
-                            <input type="tel" id="phone" placeholder="07XXXXXXXX" class="flex-1 p-5 bg-slate-800 border-none rounded-2xl text-white text-center text-xl font-bold outline-none focus:ring-2 focus:ring-yellow-500">
-                            <button id="payBtn" onclick="pay()" class="yellow-bg text-slate-900 font-black px-10 py-5 rounded-2xl uppercase tracking-widest hover:scale-95 transition-all">Pay Now</button>
-                        </div>
-                        
-                        <!-- Status and Error Message Display -->
-                        <div id="pStat" class="min-h-[20px]"></div>
-
-                        <button onclick="hidePay()" class="text-slate-500 text-[10px] uppercase font-bold hover:text-white">Back to packages</button>
+                    <div class="bg-slate-50 p-8 rounded-[2rem] border border-slate-100">
+                        <b class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">ATS Visibility</b>
+                        <p id="visibility-display" class="text-2xl font-black text-slate-900"></p>
+                        <p class="text-sm text-slate-500 mt-2">Likelihood of passing the automated screening.</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- STEP 3: UNLOCKED FINAL REPORT -->
-        <div id="final-report" class="hidden mt-12 space-y-6 pb-24">
-            <div class="glass p-10 rounded-[3rem] shadow-2xl" id="report-content"></div>
-            <button onclick="location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">Analyze Another Job</button>
+            <!-- Deep Dive -->
+            <div class="glass p-10 rounded-[3rem] space-y-8 animate-up" style="animation-delay: 0.2s;">
+                <div>
+                    <b class="yellow-text text-[10px] uppercase font-black tracking-widest block mb-4">Improvement Strategy</b>
+                    <p id="strategy-display" class="text-xl text-white font-semibold leading-relaxed"></p>
+                </div>
+                
+                <hr class="border-slate-800">
+
+                <div>
+                    <b class="yellow-text text-[10px] uppercase font-black tracking-widest block mb-4">Tailored Cover Letter</b>
+                    <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800">
+                        <pre id="cover-letter-display" class="whitespace-pre-wrap font-sans text-sm text-slate-300 leading-relaxed"></pre>
+                    </div>
+                </div>
+
+                <button onclick="window.location.reload()" class="w-full py-4 text-slate-500 font-bold uppercase text-[10px] tracking-widest hover:text-white transition-colors">← Analyze Another Job</button>
+            </div>
         </div>
     </main>
 
-<script>
-    let rawJD = "", rawCV = "";
-    let activeAmt = 0, activeName = "";
-    let pollInterval = null;
-
-    async function startAnalysis() {
-        rawJD = document.getElementById('jd_text').value;
-        rawCV = document.getElementById('cv_text').value;
-        const formData = new FormData(document.getElementById('upload-form'));
-        
-        document.getElementById('step-1').classList.add('hidden');
-        document.getElementById('loading-screen').classList.remove('hidden');
-
-        try {
-            const res = await fetch('/analyze', { method: 'POST', body: formData });
-            const data = await res.json();
+    <script>
+        async function runDiagnostic() {
+            const form = document.getElementById('upload-form');
+            const formData = new FormData(form);
             
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('step-2').classList.remove('hidden');
-            
-            const score = parseInt(data.score);
-            document.getElementById('score').innerText = (isNaN(score) ? 0 : score) + "%";
-            document.getElementById('k-count').innerText = data.missing_count || 0;
-            document.getElementById('e-text').innerText = data.error_text || "NO MAJOR ISSUES";
-            document.getElementById('verdict').innerText = data.verdict || "";
-            document.getElementById('visibility').innerText = data.visibility || "LOW";
-        } catch (e) { alert("Analysis failed. Please try again."); location.reload(); }
-    }
+            // Validate inputs
+            const jd = document.getElementById('jd_text').value;
+            const cv = document.getElementById('cv_text').value;
+            const file = document.getElementById('cv_file').files[0];
 
-    function showPay(amt, name) {
-        activeAmt = amt; activeName = name;
-        document.getElementById('pack-name').innerText = name.toUpperCase();
-        document.getElementById('package-selector').classList.add('hidden');
-        document.getElementById('phone-area').classList.remove('hidden');
-        document.getElementById('pStat').innerHTML = "";
-    }
-
-    function hidePay() {
-        document.getElementById('package-selector').classList.remove('hidden');
-        document.getElementById('phone-area').classList.add('hidden');
-    }
-
-    async function pay() {
-        const phone = document.getElementById('phone').value.trim();
-        const pStat = document.getElementById('pStat');
-        const payBtn = document.getElementById('payBtn');
-
-        if(phone.length < 10) return alert("Enter a valid M-Pesa Number");
-
-        pStat.innerHTML = `<span class="yellow-text text-[10px] font-bold uppercase animate-pulse">⏳ Initializing M-Pesa STK Push...</span>`;
-        payBtn.disabled = true;
-
-        try {
-            const res = await fetch('/stkpush', {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ phone: phone, amount: activeAmt })
-            });
-            
-            const data = await res.json();
-            
-            // ERROR HANDLING (Shows exact reason for failure)
-            if (res.status !== 200) {
-                let errorDetails = data.details ? JSON.stringify(data.details) : "Trigger failed. Check your phone number.";
-                pStat.innerHTML = `
-                    <div style="background: #fee2e2; color: #b91c1c; padding: 12px; border-radius: 12px; font-size: 10px; text-align: left; margin-top: 10px; border: 1px solid #fecaca;">
-                        <strong>M-PESA ERROR:</strong> ${errorDetails}
-                    </div>`;
-                payBtn.disabled = false;
+            if (!jd || (!cv && !file)) {
+                alert("Please provide both a Job Description and your Resume.");
                 return;
             }
 
-            pStat.innerHTML = `<span class="yellow-text text-[10px] font-bold uppercase">📩 Prompt sent! Enter PIN on your phone now...</span>`;
-            
-            // START POLLING
-            if (pollInterval) clearInterval(pollInterval);
-            pollInterval = setInterval(async () => {
-                try {
-                    const check = await fetch(`/check-payment/${data.checkout_id}`);
-                    const r = await check.json();
-                    if(r.status === "paid") {
-                        clearInterval(pollInterval);
-                        pStat.innerHTML = `<span class="text-green-500 text-[10px] font-bold uppercase">✅ Payment Confirmed!</span>`;
-                        unlockResults();
-                    }
-                } catch (e) { console.error("Waiting for payment..."); }
-            }, 4000);
+            // Switch UI to loading
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
 
-        } catch (e) { 
-            pStat.innerHTML = `<span class="text-red-500 text-[10px] font-bold uppercase">❌ Connection Error. Try again.</span>`;
-            payBtn.disabled = false; 
-        }
-    }
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
 
-    async function unlockResults() {
-        document.getElementById('step-2').classList.add('opacity-30', 'pointer-events-none');
-        document.getElementById('loading-screen').classList.remove('hidden');
-        document.getElementById('loading-text').innerText = "AI generating your full report...";
+                if (data.error) throw new Error(data.error);
 
-        try {
-            const res = await fetch('/generate-docs', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({jd: rawJD, cv: rawCV})
-            });
-            const data = await res.json();
+                // Populate UI
+                document.getElementById('score-display').innerText = data.score + "%";
+                document.getElementById('verdict-display').innerText = `"${data.verdict}"`;
+                document.getElementById('visibility-display').innerText = data.visibility;
+                document.getElementById('strategy-display').innerText = data.strategy;
+                document.getElementById('cover-letter-display').innerText = data.cover_letter;
 
-            document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('final-report').classList.remove('hidden');
-            
-            let html = `<h4 class="text-3xl font-black text-white mb-10 uppercase">${activeName}</h4>`;
-            html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Keywords to include</b><p class="text-white text-2xl font-bold">${data.keywords.join(" • ")}</p></div>`;
+                // Populate Keywords
+                const kwContainer = document.getElementById('keywords-list');
+                kwContainer.innerHTML = '';
+                data.missing_keywords.forEach(kw => {
+                    const span = document.createElement('span');
+                    span.className = "px-4 py-2 bg-red-100 text-red-600 rounded-full text-xs font-bold";
+                    span.innerText = kw;
+                    kwContainer.appendChild(span);
+                });
 
-            if(activeAmt >= 60) {
-                html += `<div class="p-8 bg-slate-800 rounded-3xl border border-slate-700 mb-6"><b class="yellow-text text-[10px] uppercase block mb-4">Job-Match Strategy</b><p class="text-slate-300 text-sm leading-relaxed">${data.summary}</p></div>
-                        <div class="p-10 bg-white rounded-[2.5rem] text-slate-900 shadow-xl"><b class="text-blue-600 text-[10px] uppercase font-black block mb-6">Optimized Cover Letter</b><pre class="whitespace-pre-wrap font-sans text-sm">${data.cover_letter}</pre></div>`;
+                // Show Results
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('results-section').classList.remove('hidden');
+                window.scrollTo(0, 0);
+
+            } catch (err) {
+                alert("Analysis Error: " + err.message);
+                window.location.reload();
             }
-            document.getElementById('report-content').innerHTML = html;
-            document.getElementById('final-report').scrollIntoView({ behavior: 'smooth' });
-        } catch (e) { alert("Error generating docs."); }
-    }
-</script>
+        }
+    </script>
 </body>
 </html>
