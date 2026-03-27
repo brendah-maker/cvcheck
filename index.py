@@ -28,55 +28,52 @@ def analyze():
                 with pdfplumber.open(io.BytesIO(file.read())) as pdf:
                     cv_text = " ".join([page.extract_text() or "" for page in pdf.pages])
             except Exception:
-                return jsonify({"error_text": "Could not read the PDF file."}), 400
+                return jsonify({"error": "Failed to read PDF file"}), 400
 
     if not jd_text or not cv_text:
-        return jsonify({"error_text": "Please provide both a Job Description and a CV."}), 400
+        return jsonify({"error": "Missing input data"}), 400
 
     try:
-        # SYSTEM PROMPT: Strict instructions to ensure consistency
+        # SYSTEM PROMPT: Forces consistency and strict JSON output
         sys_prompt = """
-        You are a professional ATS (Applicant Tracking System) and Career Coach. 
-        Analyze the match between the provided Resume and Job Description.
+        You are an expert ATS (Applicant Tracking System) Analyzer. 
+        Perform a deep-dive comparison between the Resume and Job Description.
         
-        SCORING RUBRIC (BE CONSISTENT):
-        - 40 points: Keyword matching (Hard skills).
-        - 40 points: Experience relevance (Industry & Years).
-        - 20 points: Formatting, Education, and Certifications.
+        SCORING RULES (Strict Consistency):
+        1. Keywords Match (40%): Hard skills, tools, and technical terms.
+        2. Experience Match (40%): Relevant titles, years of experience, and industry.
+        3. Quality & Formatting (20%): Education, clarity, and certifications.
         
-        Return ONLY a JSON object with this exact structure:
+        Return ONLY valid JSON:
         {
-            "score": int, 
-            "visibility": "High" | "Medium" | "Low", 
-            "missing_count": int, 
-            "verdict": "short description", 
-            "keywords": ["list", "of", "missing", "keywords"],
-            "summary": "3-sentence professional improvement summary",
-            "cover_letter": "A short, high-impact tailored cover letter draft"
+            "score": int,
+            "visibility": "High" | "Medium" | "Low",
+            "verdict": "A 1-sentence blunt truth about the match.",
+            "missing_keywords": ["list", "of", "missing", "skills"],
+            "strategy": "3 sentences on exactly what to change in the CV.",
+            "cover_letter": "A professional 3-paragraph tailored cover letter."
         }
         """
 
-        user_content = f"JOB DESCRIPTION:\n{jd_text[:2000]}\n\nRESUME:\n{cv_text[:3000]}"
+        user_content = f"JOB DESCRIPTION:\n{jd_text[:1500]}\n\nRESUME:\n{cv_text[:2000]}"
 
-        # Using the 70B model for higher accuracy and temperature 0 for consistency
+        # Temperature 0 ensures the same input generates the same output
         response = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": sys_prompt},
                 {"role": "user", "content": user_content}
             ],
             model="llama-3.3-70b-versatile",
-            temperature=0, # ZERO temperature ensures the same input gives the same output
+            temperature=0, 
             response_format={"type": "json_object"}
         )
         
-        analysis_results = json.loads(response.choices[0].message.content)
-        return jsonify(analysis_results)
+        return jsonify(json.loads(response.choices[0].message.content))
 
     except Exception as e:
-        print(f"AI Error: {str(e)}")
-        return jsonify({"error_text": "The AI is currently busy. Please try again in a moment."}), 500
+        print(f"Error: {e}")
+        return jsonify({"error": "AI Analysis failed"}), 500
 
 if __name__ == "__main__":
-    # Render uses the PORT environment variable
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
