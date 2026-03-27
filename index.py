@@ -20,7 +20,6 @@ def analyze():
     jd_text = request.form.get('jd_text', '')
     cv_text = request.form.get('cv_text', '')
     
-    # Handle PDF Upload
     if 'cv_file' in request.files:
         file = request.files['cv_file']
         if file.filename != '':
@@ -28,50 +27,40 @@ def analyze():
                 with pdfplumber.open(io.BytesIO(file.read())) as pdf:
                     cv_text = " ".join([page.extract_text() or "" for page in pdf.pages])
             except Exception:
-                return jsonify({"error": "Failed to read PDF file"}), 400
+                return jsonify({"error": "Failed to parse PDF"}), 400
 
     if not jd_text or not cv_text:
         return jsonify({"error": "Missing input data"}), 400
 
     try:
-        # SYSTEM PROMPT: Forces consistency and strict JSON output
         sys_prompt = """
         You are an expert ATS (Applicant Tracking System) Analyzer. 
-        Perform a deep-dive comparison between the Resume and Job Description.
+        Analyze the match between the Resume and Job Description.
         
-        SCORING RULES (Strict Consistency):
-        1. Keywords Match (40%): Hard skills, tools, and technical terms.
-        2. Experience Match (40%): Relevant titles, years of experience, and industry.
-        3. Quality & Formatting (20%): Education, clarity, and certifications.
-        
-        Return ONLY valid JSON:
+        STRICT SCORING:
+        - Keywords (40%): Hard skills and technical tools.
+        - Experience (40%): Industry relevance and seniority.
+        - Formatting (20%): Clarity and Education.
+
+        Return ONLY JSON:
         {
             "score": int,
             "visibility": "High" | "Medium" | "Low",
-            "verdict": "A 1-sentence blunt truth about the match.",
-            "missing_keywords": ["list", "of", "missing", "skills"],
-            "strategy": "3 sentences on exactly what to change in the CV.",
-            "cover_letter": "A professional 3-paragraph tailored cover letter."
+            "verdict": "One short, punchy sentence.",
+            "missing_keywords": ["keyword1", "keyword2"],
+            "strategy": "Three bullet points for improvement.",
+            "cover_letter": "A 3-paragraph tailored cover letter."
         }
         """
-
-        user_content = f"JOB DESCRIPTION:\n{jd_text[:1500]}\n\nRESUME:\n{cv_text[:2000]}"
-
-        # Temperature 0 ensures the same input generates the same output
         response = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": sys_prompt},
-                {"role": "user", "content": user_content}
-            ],
+            messages=[{"role": "system", "content": sys_prompt},
+                      {"role": "user", "content": f"JD: {jd_text[:1500]}\nCV: {cv_text[:2000]}"}],
             model="llama-3.3-70b-versatile",
             temperature=0, 
             response_format={"type": "json_object"}
         )
-        
         return jsonify(json.loads(response.choices[0].message.content))
-
     except Exception as e:
-        print(f"Error: {e}")
         return jsonify({"error": "AI Analysis failed"}), 500
 
 if __name__ == "__main__":
