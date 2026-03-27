@@ -20,6 +20,7 @@ def analyze():
     jd_text = request.form.get('jd_text', '')
     cv_text = request.form.get('cv_text', '')
     
+    # Handle PDF Upload
     if 'cv_file' in request.files:
         file = request.files['cv_file']
         if file.filename != '':
@@ -33,23 +34,24 @@ def analyze():
         return jsonify({"error": "Missing input data"}), 400
 
     try:
+        # Strict instructions for consistency
         sys_prompt = """
-        You are an expert ATS (Applicant Tracking System) Analyzer. 
-        Analyze the match between the Resume and Job Description.
+        You are an elite Executive Recruiter and ATS Expert. 
+        Perform a professional gap analysis between the Resume and Job Description.
         
-        STRICT SCORING:
-        - Keywords (40%): Hard skills and technical tools.
-        - Experience (40%): Industry relevance and seniority.
-        - Formatting (20%): Clarity and Education.
+        SCORING RUBRIC:
+        - Technical Alignment (40%): Hard skills and specific tools.
+        - Experience Depth (40%): Industry relevance and level of responsibility.
+        - Communication Quality (20%): Clarity, education, and professional formatting.
 
         Return ONLY JSON:
         {
             "score": int,
             "visibility": "High" | "Medium" | "Low",
-            "verdict": "One short, punchy sentence.",
-            "missing_keywords": ["keyword1", "keyword2"],
-            "strategy": "Three bullet points for improvement.",
-            "cover_letter": "A 3-paragraph tailored cover letter."
+            "verdict": "A sophisticated, executive-level summary of the match.",
+            "missing_keywords": ["skill1", "skill2"],
+            "strategy": "Three professional high-impact suggestions for the CV.",
+            "cover_letter": "A high-end, 3-paragraph tailored cover letter."
         }
         """
         response = client.chat.completions.create(
@@ -61,8 +63,10 @@ def analyze():
         )
         return jsonify(json.loads(response.choices[0].message.content))
     except Exception as e:
+        print(f"Error: {e}")
         return jsonify({"error": "AI Analysis failed"}), 500
 
 if __name__ == "__main__":
+    # Use port from environment for Render/Heroku
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
