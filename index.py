@@ -5,8 +5,19 @@ import io
 from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
-
 app = Flask(__name__, template_folder='templates')
+
+# Add this at the top of your file (outside any function)
+visitor_count = 0
+
+@app.route('/')
+def index():
+    global visitor_count
+    visitor_count += 1
+    print(f"--- VISIT #{visitor_count} | IP: {request.remote_addr} | Device: {request.user_agent.platform} ---")
+    return render_template('index.html')
+
+
 
 
 # --- Configuration ---
