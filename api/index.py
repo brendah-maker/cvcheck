@@ -5,7 +5,8 @@ import io
 from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='../templates')
+
 
 # --- Configuration ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
