@@ -5,28 +5,29 @@ import io
 from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
+# 1. Initialize Flask
 app = Flask(__name__, template_folder='templates')
 
-# Add this at the top of your file (outside any function)
+# 2. Setup Visitor Counter
 visitor_count = 0
+
+# --- ROUTES ---
 
 @app.route('/')
 def index():
     global visitor_count
     visitor_count += 1
-    print(f"--- VISIT #{visitor_count} | IP: {request.remote_addr} | Device: {request.user_agent.platform} ---")
+    
+    # Safety check for device info (sometimes it can be empty)
+    platform = request.user_agent.platform if request.user_agent.platform else "Unknown Device"
+    
+    # This combines your logic into ONE function
+    print(f"--- VISIT #{visitor_count} | IP: {request.remote_addr} | Device: {platform} ---")
     return render_template('index.html')
 
-
-
-
-# --- Configuration ---
+# --- AI Configuration ---
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
