@@ -6,14 +6,7 @@ from flask import Flask, request, jsonify, render_template
 from groq import Groq
 
 
-
-# Get the directory where index.py is located (the /api folder)
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Point to the templates folder which is one level up
-template_dir = os.path.join(base_dir, '..', 'templates')
-
-app = Flask(__name__, template_folder=template_dir)
+app = Flask(__name__, template_folder='templates')
 
 
 # --- Configuration ---
