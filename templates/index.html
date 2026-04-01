@@ -3,194 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CVCheck | AI ATS Match Score</title>
     
-    <!-- PRIMARY SEO -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- PRIMARY SEO -->
+
     <title>CVCheck | Free AI ATS Diagnostic & Match Score</title>
+
     <meta name="description" content="Stop getting rejected by robots. Use our Llama-3 AI to scan your CV against any job description and get an instant ATS match score and keyword gap analysis.">
 
+
+
     <!-- LINKEDIN / FACEBOOK PREVIEW TAGS (Open Graph) -->
+
     <meta property="og:type" content="website">
+
     <meta property="og:url" content="https://cvcheck-2pdf.onrender.com/">
+
     <meta property="og:title" content="Is a Robot rejecting your CV? | Free AI Diagnostic">
+
     <meta property="og:description" content="I built a tool that uses Llama-3.3 AI to show you exactly why you aren't getting interviews. Get your ATS match score for free.">
+
     <!-- This is a high-quality professional placeholder image -->
+
     <meta property="og:image" content="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070&auto=format&fit=crop">
 
+
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; color: #f8fafc; scroll-behavior: smooth; }
-        .emerald-text { color: #10b981; }
-        .emerald-bg { background-color: #10b981; }
-        .glass { background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-        .glow:hover { box-shadow: 0 0 40px rgba(16, 185, 129, 0.1); transition: all 0.4s ease; }
-        .circle-bg { fill: none; stroke: #1e293b; stroke-width: 4; }
-        .circle-progress { fill: none; stroke: #10b981; stroke-width: 4; stroke-linecap: round; transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc; 
+            color: #1e293b; 
+            scroll-behavior: smooth; 
+        }
+        .glass { 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid #e2e8f0; 
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        .drop-zone--over {
+            border: 2px dashed #6366f1 !important;
+            background: rgba(99, 102, 241, 0.05) !important;
+        }
+        .circle-bg { fill: none; stroke: #e2e8f0; stroke-width: 6; }
+        .circle-progress { 
+            fill: none; 
+            stroke-width: 6; 
+            stroke-linecap: round; 
+            transition: stroke-dasharray 1.2s ease, stroke 0.5s ease; 
+        }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="selection:bg-emerald-500/30">
+<body class="selection:bg-indigo-100">
 
-    <nav class="sticky top-0 z-50 glass border-b border-white/5">
-        <div class="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center">
-            <h1 class="text-xl font-extrabold tracking-tighter text-white flex items-center gap-2">
-                <div class="w-6 h-6 emerald-bg rounded-lg"></div>
-                CV<span class="emerald-text">CHECK</span>
+    <nav class="sticky top-0 z-50 glass border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-extrabold tracking-tighter text-slate-900 flex items-center gap-2">
+                <div class="w-6 h-6 bg-indigo-600 rounded-lg"></div>
+                CV<span class="text-indigo-600">CHECK</span>
             </h1>
-            <div class="hidden md:flex gap-10 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                <a href="#how-it-works" class="hover:text-emerald-400 transition">Methodology</a>
-                <a href="#faq" class="hover:text-emerald-400 transition">FAQ</a>
+            <div class="hidden md:flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                <a href="#how-it-works" class="hover:text-indigo-600 transition">Methodology</a>
+                <a href="#faq" class="hover:text-indigo-600 transition">FAQ</a>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-6 pt-20 pb-32">
+    <main class="max-w-5xl mx-auto px-6 pt-16 pb-32">
         
-        <header id="input-section" class="text-center space-y-12 mb-24 fade-in">
-            <div class="space-y-6">
-                <span class="px-5 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.25em] border border-emerald-500/20">Executive Tier Diagnostic</span>
-                <h2 class="text-6xl md:text-8xl font-extrabold text-white leading-tight tracking-tight">The Future of <br> <span class="emerald-text">Hiring.</span></h2>
-                <p class="text-slate-400 text-xl max-w-2xl mx-auto leading-relaxed">Ensure your resume meets the precision requirements of modern ATS algorithms. Instant, professional, and 100% free.</p>
+        <header id="input-section" class="text-center space-y-8 mb-20 fade-in">
+            <div class="space-y-4">
+                <span class="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-widest border border-indigo-100">AI-Powered Diagnostic</span>
+                <h2 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight tracking-tight">Beat the <span class="text-indigo-600">Bots.</span></h2>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Upload your resume and the job description to see how a robot grades you.</p>
             </div>
             
-            <form id="upload-form" class="grid md:grid-cols-2 gap-8 text-left">
-                <div class="glass p-8 rounded-[2.5rem] glow">
-                    <label class="block text-[10px] font-black emerald-text uppercase tracking-widest mb-4">Target Job Description</label>
-                    <textarea id="jd_text" name="jd_text" placeholder="Paste the job requirements here..." class="w-full p-5 bg-slate-900/60 border border-white/5 rounded-2xl h-72 text-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"></textarea>
+            <form id="upload-form" class="grid md:grid-cols-2 gap-6 text-left">
+                <div class="glass p-6 rounded-[2rem]">
+                    <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">1. Target Job Description</label>
+                    <textarea id="jd_text" name="jd_text" required placeholder="Paste the job requirements here..." class="w-full p-5 bg-white border border-slate-200 rounded-2xl h-64 text-slate-700 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></textarea>
                 </div>
-                <div class="glass p-8 rounded-[2.5rem] glow">
-                    <label class="block text-[10px] font-black emerald-text uppercase tracking-widest mb-4">Your Professional Resume</label>
-                    <div class="mb-6">
-                        <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="block w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20 cursor-pointer transition">
+
+                <div id="drop-zone" class="glass p-6 rounded-[2rem] border-2 border-transparent transition-all">
+                    <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">2. Your Resume</label>
+                    <div class="relative group cursor-pointer mb-4 p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-indigo-400 transition-colors">
+                        <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <p id="file-name" class="text-sm text-slate-500 font-medium">Drag & Drop PDF or <span class="text-indigo-600">Browse</span></p>
                     </div>
-                    <textarea id="cv_text" name="cv_text" placeholder="Or paste resume text here..." class="w-full p-5 bg-slate-900/60 border border-white/5 rounded-2xl h-44 text-slate-200 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all placeholder:text-slate-600"></textarea>
+                    <textarea id="cv_text" name="cv_text" placeholder="Or paste resume text here..." class="w-full p-5 bg-white border border-slate-200 rounded-2xl h-32 text-slate-700 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></textarea>
                 </div>
-                <button type="button" onclick="runDiagnostic()" class="md:col-span-2 w-full emerald-bg text-slate-950 font-black py-6 rounded-2xl uppercase tracking-[0.2em] text-sm hover:brightness-110 active:scale-[0.99] transition-all shadow-2xl shadow-emerald-500/20">Initiate Deep Scan</button>
+
+                <button type="button" id="scan-btn" onclick="runDiagnostic()" class="md:col-span-2 w-full bg-indigo-600 text-white font-bold py-5 rounded-2xl uppercase tracking-widest text-sm hover:bg-indigo-700 active:scale-[0.98] transition-all shadow-lg shadow-indigo-200">
+                    Check My Match Score
+                </button>
             </form>
         </header>
 
         <div id="loading-screen" class="hidden text-center py-32 fade-in">
             <div class="relative inline-block">
-                <div class="w-28 h-28 border-[6px] border-slate-800 rounded-full"></div>
-                <div class="absolute top-0 left-0 w-28 h-28 border-[6px] border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                <div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
+                <div class="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <p class="mt-10 text-xl font-black emerald-text uppercase tracking-[0.3em]">Processing Analysis...</p>
-            <p class="text-slate-500 mt-3 font-medium">Cross-referencing technical skills and leadership benchmarks.</p>
+            <p class="mt-8 text-lg font-bold text-slate-900 uppercase tracking-widest">Analyzing Alignment...</p>
         </div>
 
-        <article id="results-section" class="hidden space-y-12 fade-in">
-            <div class="grid md:grid-cols-3 gap-8 items-stretch">
-                <div class="glass p-10 rounded-[3rem] flex flex-col items-center justify-center text-center">
-                    <div class="relative mb-6">
-                        <svg class="w-40 h-40 transform -rotate-90">
-                            <circle class="circle-bg" cx="80" cy="80" r="74"></circle>
-                            <circle id="score-circle" class="circle-progress" cx="80" cy="80" r="74" stroke-dasharray="0 465"></circle>
+        <article id="results-section" class="hidden space-y-8 fade-in">
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
+                    <div class="relative mb-4">
+                        <svg class="w-32 h-32 transform -rotate-90">
+                            <circle class="circle-bg" cx="64" cy="64" r="58"></circle>
+                            <circle id="score-circle" class="circle-progress" cx="64" cy="64" r="58" stroke-dasharray="0 364"></circle>
                         </svg>
                         <div class="absolute inset-0 flex items-center justify-center">
-                            <span id="score-text" class="text-4xl font-black text-white">0%</span>
+                            <span id="score-text" class="text-3xl font-black text-slate-900">0%</span>
                         </div>
                     </div>
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Precision Index</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match Accuracy</p>
                 </div>
 
-                <div class="md:col-span-2 glass p-10 rounded-[3rem] flex flex-col justify-center">
-                    <p id="visibility-badge" class="inline-block w-max px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest mb-6"></p>
-                    <h3 id="verdict-display" class="text-4xl font-bold text-white leading-tight tracking-tight"></h3>
-                    <p class="text-slate-500 mt-6 text-sm italic">Executive alignment summary provided by Llama-3 AI Diagnostic.</p>
+                <div class="md:col-span-2 glass p-8 rounded-[2.5rem] flex flex-col justify-center">
+                    <p id="visibility-badge" class="inline-block w-max px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest mb-4"></p>
+                    <h3 id="verdict-display" class="text-3xl font-bold text-slate-900 leading-tight"></h3>
+                    <p class="text-slate-500 mt-4 text-sm">Strategic insight provided by Llama-3 Analysis.</p>
                 </div>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8">
-                <section class="glass p-10 rounded-[3rem]">
-                    <h4 class="text-[10px] font-black emerald-text uppercase tracking-[0.3em] mb-8">Skill Gap Identifiers</h4>
-                    <div id="keywords-list" class="flex flex-wrap gap-3"></div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <section class="glass p-8 rounded-[2.5rem]">
+                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Keyword Gaps</h4>
+                    <div id="keywords-list" class="flex flex-wrap gap-2"></div>
                 </section>
-                <section class="glass p-10 rounded-[3rem]">
-                    <h4 class="text-[10px] font-black emerald-text uppercase tracking-[0.3em] mb-8">Strategic Improvements</h4>
-                    <div id="strategy-display" class="text-slate-300 text-lg font-medium leading-relaxed space-y-4"></div>
-                </section>
-            </div>
-
-            <section class="glass rounded-[3rem] overflow-hidden">
-                <div class="p-10 border-b border-white/5 flex justify-between items-center">
-                    <h4 class="text-[10px] font-black emerald-text uppercase tracking-[0.3em]">Optimized Cover Letter</h4>
-                    <button onclick="copyCoverLetter()" class="text-[10px] font-black text-slate-400 hover:text-emerald-400 uppercase tracking-widest flex items-center gap-3 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                        Copy Document
+                <section class="glass p-8 rounded-[2.5rem] relative">
+                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Improvement Strategy</h4>
+                    <div id="strategy-display" class="text-slate-600 text-md leading-relaxed mb-12"></div>
+                    <button onclick="copyFullReport()" class="absolute bottom-6 right-6 bg-slate-900 text-white text-[10px] px-4 py-2 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-600 transition">
+                        Copy Full Strategy
                     </button>
-                </div>
-                <div class="p-10 bg-slate-900/40">
-                    <pre id="cover-letter-display" class="whitespace-pre-wrap font-sans text-base text-slate-300 leading-relaxed"></pre>
-                </div>
-            </section>
-
-            <div class="text-center pt-10">
-                <button onclick="window.location.reload()" class="text-slate-500 text-[10px] font-black uppercase tracking-[0.5em] hover:text-emerald-400 transition-all">← Restart Diagnostic</button>
+                </section>
+            </div>
+            
+            <div class="text-center pt-8">
+                <button onclick="window.location.reload()" class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-indigo-600 transition">← Reset Analysis</button>
             </div>
         </article>
-
-        <section id="how-it-works" class="mt-40 pt-24 border-t border-white/5 text-center">
-            <h3 class="text-3xl font-black mb-20 uppercase tracking-tighter">Diagnostic Methodology</h3>
-            <div class="grid md:grid-cols-3 gap-16">
-                <div class="space-y-6"><h5 class="font-bold text-white text-lg">01. Parsing</h5><p class="text-slate-400 text-sm leading-relaxed">Advanced text extraction mirrors the behavior of leading Applicant Tracking Systems.</p></div>
-                <div class="space-y-6"><h5 class="font-bold text-white text-lg">02. Alignment</h5><p class="text-slate-400 text-sm leading-relaxed">Neural network analysis benchmarks your experience against specific job requirements.</p></div>
-                <div class="space-y-6"><h5 class="font-bold text-white text-lg">03. Synthesis</h5><p class="text-slate-400 text-sm leading-relaxed">The final diagnostic score is weighted by keyword frequency and seniority mapping.</p></div>
-            </div>
-        </section>
-
-        <section id="faq" class="mt-32 glass p-10 rounded-[3rem]">
-            <h3 class="text-2xl font-black mb-8 text-center uppercase tracking-widest">Common Questions</h3>
-            <div class="grid md:grid-cols-2 gap-10 text-sm">
-                <div class="space-y-2"><h6 class="font-bold text-white">Is this free?</h6><p class="text-slate-400">Yes. We provide executive analysis without the subscription cost.</p></div>
-                <div class="space-y-2"><h6 class="font-bold text-white">How accurate is it?</h6><p class="text-slate-400">Our Llama-3 model uses the same semantic logic as modern recruitment software.</p></div>
-            </div>
-        </section>
     </main>
 
-    <footer class="text-center py-16 border-t border-white/5 text-[9px] text-slate-600 font-bold uppercase tracking-[0.6em]">Professional Grade Career Diagnostics • Llama-3 Powered</footer>
-
     <script>
+        // --- Drag & Drop Logic ---
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('cv_file');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); });
+        });
+
+        dropZone.addEventListener('dragover', () => dropZone.classList.add('drop-zone--over'));
+        ['dragleave', 'drop'].forEach(evt => dropZone.addEventListener(evt, () => dropZone.classList.remove('drop-zone--over')));
+
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length) {
+                fileInput.files = files;
+                updateFileName(files[0].name);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) updateFileName(fileInput.files[0].name);
+        });
+
+        function updateFileName(name) {
+            fileNameDisplay.innerText = "Selected: " + name;
+            fileNameDisplay.classList.add('text-indigo-600');
+        }
+
+        // --- Diagnostic Logic ---
         async function runDiagnostic() {
-            const form = document.getElementById('upload-form');
-            const formData = new FormData(form);
             const jd = document.getElementById('jd_text').value;
-            const cv = document.getElementById('cv_text').value;
-            const file = document.getElementById('cv_file').files[0];
-            if (!jd || (!cv && !file)) return alert("Required: Provide both job description and resume content.");
+            const cvText = document.getElementById('cv_text').value;
+            const file = fileInput.files[0];
+            const btn = document.getElementById('scan-btn');
+
+            if (!jd || (!cvText && !file)) {
+                return alert("Please provide both a Job Description and your Resume.");
+            }
+
+            // UI Transitions
+            btn.innerText = "Scanning Resume...";
+            btn.disabled = true;
             document.getElementById('input-section').classList.add('hidden');
             document.getElementById('loading-screen').classList.remove('hidden');
+
             try {
+                const formData = new FormData(document.getElementById('upload-form'));
                 const response = await fetch('/analyze', { method: 'POST', body: formData });
                 const data = await response.json();
+
                 if (data.error) throw new Error(data.error);
-                const score = data.score || 0;
-                document.getElementById('score-text').innerText = score + "%";
-                document.getElementById('verdict-display').innerText = data.verdict;
-                document.getElementById('strategy-display').innerText = data.strategy;
-                document.getElementById('cover-letter-display').innerText = data.cover_letter;
-                const badge = document.getElementById('visibility-badge');
-                badge.innerText = data.visibility + " Visibility Score";
-                badge.className = `inline-block w-max px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest mb-6 ${score > 75 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : score > 50 ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`;
-                const circle = document.getElementById('score-circle');
-                const circumference = 2 * Math.PI * 74;
-                circle.style.strokeDasharray = `${circumference} ${circumference}`;
-                circle.style.strokeDashoffset = circumference - (score / 100) * circumference;
-                const kwList = document.getElementById('keywords-list');
-                kwList.innerHTML = '';
-                data.missing_keywords.forEach(kw => {
-                    const el = document.createElement('span');
-                    el.className = "px-4 py-2 bg-slate-800/80 text-slate-200 rounded-xl text-xs font-semibold border border-white/5";
-                    el.innerText = kw;
-                    kwList.appendChild(el);
-                });
-                document.getElementById('loading-screen').classList.add('hidden');
-                document.getElementById('results-section').classList.remove('hidden');
-                window.scrollTo(0, 0);
-            } catch (err) { alert("Technical Error: " + err.message); window.location.reload(); }
+
+                renderResults(data);
+            } catch (err) {
+                alert("Error: " + err.message);
+                window.location.reload();
+            }
         }
-        function copyCoverLetter() { const text = document.getElementById('cover-letter-display').innerText; navigator.clipboard.writeText(text).then(() => alert("Document copied to clipboard.")); }
+
+        function renderResults(data) {
+            const score = data.score || 0;
+            const scoreCircle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('score-text');
+            const circumference = 2 * Math.PI * 58;
+
+            // Update Text
+            scoreText.innerText = score + "%";
+            document.getElementById('verdict-display').innerText = data.verdict;
+            document.getElementById('strategy-display').innerText = data.strategy;
+
+            // Score Color Logic
+            let color = "#ef4444"; // Red
+            if (score > 40) color = "#f59e0b"; // Yellow/Amber
+            if (score > 70) color = "#10b981"; // Emerald
+
+            scoreCircle.style.stroke = color;
+            scoreCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+            scoreCircle.style.strokeDashoffset = circumference - (score / 100) * circumference;
+
+            // Visibility Badge
+            const badge = document.getElementById('visibility-badge');
+            badge.innerText = data.visibility + " Visibility";
+            badge.style.backgroundColor = color + "15";
+            badge.style.color = color;
+            badge.style.border = `1px solid ${color}30`;
+
+            // Keywords
+            const kwList = document.getElementById('keywords-list');
+            kwList.innerHTML = '';
+            data.missing_keywords.forEach(kw => {
+                const el = document.createElement('span');
+                el.className = "px-3 py-1 bg-white border border-slate-200 text-slate-600 rounded-lg text-xs font-medium";
+                el.innerText = kw;
+                kwList.appendChild(el);
+            });
+
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function copyFullReport() {
+            const strategy = document.getElementById('strategy-display').innerText;
+            const keywords = Array.from(document.querySelectorAll('#keywords-list span')).map(s => s.innerText).join(', ');
+            const textToCopy = `CV STRATEGY REPORT\n\nKEYWORDS TO ADD: ${keywords}\n\nSTRATEGY: ${strategy}`;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert("Strategy and Keywords copied to clipboard!");
+            });
+        }
     </script>
 </body>
 </html>
