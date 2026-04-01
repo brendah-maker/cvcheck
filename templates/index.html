@@ -3,37 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CVCheck | AI ATS Match Score</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<!-- PRIMARY SEO -->
-
     <title>CVCheck | Free AI ATS Diagnostic & Match Score</title>
-
-    <meta name="description" content="Stop getting rejected by robots. Use our Llama-3 AI to scan your CV against any job description and get an instant ATS match score and keyword gap analysis.">
-
-
-
-    <!-- LINKEDIN / FACEBOOK PREVIEW TAGS (Open Graph) -->
+    <meta name="description" content="Stop getting rejected by robots. Use our Llama-3 AI to scan your CV against any job description.">
 
     <meta property="og:type" content="website">
-
     <meta property="og:url" content="https://cvcheck-2pdf.onrender.com/">
-
     <meta property="og:title" content="Is a Robot rejecting your CV? | Free AI Diagnostic">
-
-    <meta property="og:description" content="I built a tool that uses Llama-3.3 AI to show you exactly why you aren't getting interviews. Get your ATS match score for free.">
-
-    <!-- This is a high-quality professional placeholder image -->
-
+    <meta property="og:description" content="I built a tool that uses Llama-3.3 AI to show you exactly why you aren't getting interviews.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070&auto=format&fit=crop">
 
-
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
@@ -80,7 +60,6 @@
     </nav>
 
     <main class="max-w-5xl mx-auto px-6 pt-16 pb-32">
-        
         <header id="input-section" class="text-center space-y-8 mb-20 fade-in">
             <div class="space-y-4">
                 <span class="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-widest border border-indigo-100">AI-Powered Diagnostic</span>
@@ -160,7 +139,7 @@
     </main>
 
     <script>
-        // --- Drag & Drop Logic ---
+        // JS logic remains the same as in the previous step
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('cv_file');
         const fileNameDisplay = document.getElementById('file-name');
@@ -189,7 +168,6 @@
             fileNameDisplay.classList.add('text-indigo-600');
         }
 
-        // --- Diagnostic Logic ---
         async function runDiagnostic() {
             const jd = document.getElementById('jd_text').value;
             const cvText = document.getElementById('cv_text').value;
@@ -200,7 +178,6 @@
                 return alert("Please provide both a Job Description and your Resume.");
             }
 
-            // UI Transitions
             btn.innerText = "Scanning Resume...";
             btn.disabled = true;
             document.getElementById('input-section').classList.add('hidden');
@@ -210,9 +187,7 @@
                 const formData = new FormData(document.getElementById('upload-form'));
                 const response = await fetch('/analyze', { method: 'POST', body: formData });
                 const data = await response.json();
-
                 if (data.error) throw new Error(data.error);
-
                 renderResults(data);
             } catch (err) {
                 alert("Error: " + err.message);
@@ -226,28 +201,24 @@
             const scoreText = document.getElementById('score-text');
             const circumference = 2 * Math.PI * 58;
 
-            // Update Text
             scoreText.innerText = score + "%";
             document.getElementById('verdict-display').innerText = data.verdict;
             document.getElementById('strategy-display').innerText = data.strategy;
 
-            // Score Color Logic
-            let color = "#ef4444"; // Red
-            if (score > 40) color = "#f59e0b"; // Yellow/Amber
-            if (score > 70) color = "#10b981"; // Emerald
+            let color = "#ef4444"; 
+            if (score > 40) color = "#f59e0b"; 
+            if (score > 70) color = "#10b981"; 
 
             scoreCircle.style.stroke = color;
             scoreCircle.style.strokeDasharray = `${circumference} ${circumference}`;
             scoreCircle.style.strokeDashoffset = circumference - (score / 100) * circumference;
 
-            // Visibility Badge
             const badge = document.getElementById('visibility-badge');
             badge.innerText = data.visibility + " Visibility";
             badge.style.backgroundColor = color + "15";
             badge.style.color = color;
             badge.style.border = `1px solid ${color}30`;
 
-            // Keywords
             const kwList = document.getElementById('keywords-list');
             kwList.innerHTML = '';
             data.missing_keywords.forEach(kw => {
@@ -266,7 +237,6 @@
             const strategy = document.getElementById('strategy-display').innerText;
             const keywords = Array.from(document.querySelectorAll('#keywords-list span')).map(s => s.innerText).join(', ');
             const textToCopy = `CV STRATEGY REPORT\n\nKEYWORDS TO ADD: ${keywords}\n\nSTRATEGY: ${strategy}`;
-            
             navigator.clipboard.writeText(textToCopy).then(() => {
                 alert("Strategy and Keywords copied to clipboard!");
             });
