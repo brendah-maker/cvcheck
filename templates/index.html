@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>CVCheck | Free AI ATS Diagnostic & Match Score</title>
-    <meta name="description" content="Stop getting rejected by robots. Use our Llama-3 AI to scan your CV against any job description.">
+    <meta name="description" content="Stop getting rejected by robots. Use our Llama-3 AI to scan your CV against any job description and get an instant ATS match score and keyword gap analysis.">
 
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cvcheck-2pdf.onrender.com/">
     <meta property="og:title" content="Is a Robot rejecting your CV? | Free AI Diagnostic">
-    <meta property="og:description" content="I built a tool that uses Llama-3.3 AI to show you exactly why you aren't getting interviews.">
+    <meta property="og:description" content="I built a tool that uses Llama-3.3 AI to show you exactly why you aren't getting interviews. Get your ATS match score for free.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1586281380349-632531db7ed4?q=80&w=2070&auto=format&fit=crop">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -60,11 +60,12 @@
     </nav>
 
     <main class="max-w-5xl mx-auto px-6 pt-16 pb-32">
+        
         <header id="input-section" class="text-center space-y-8 mb-20 fade-in">
             <div class="space-y-4">
                 <span class="px-4 py-1.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-widest border border-indigo-100">AI-Powered Diagnostic</span>
                 <h2 class="text-5xl md:text-7xl font-extrabold text-slate-900 leading-tight tracking-tight">Beat the <span class="text-indigo-600">Bots.</span></h2>
-                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Upload your resume and the job description to see how a robot grades you.</p>
+                <p class="text-slate-500 text-lg max-w-2xl mx-auto">Ensure your resume meets the precision requirements of modern ATS algorithms. Instant, professional, and 100% free.</p>
             </div>
             
             <form id="upload-form" class="grid md:grid-cols-2 gap-6 text-left">
@@ -77,7 +78,7 @@
                     <label class="block text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3">2. Your Resume</label>
                     <div class="relative group cursor-pointer mb-4 p-8 border-2 border-dashed border-slate-200 rounded-2xl text-center hover:border-indigo-400 transition-colors">
                         <input type="file" id="cv_file" name="cv_file" accept=".pdf" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <p id="file-name" class="text-sm text-slate-500 font-medium">Drag & Drop PDF or <span class="text-indigo-600">Browse</span></p>
+                        <p id="file-name" class="text-sm text-slate-500 font-medium font-bold">Drag & Drop PDF or <span class="text-indigo-600">Browse</span></p>
                     </div>
                     <textarea id="cv_text" name="cv_text" placeholder="Or paste resume text here..." class="w-full p-5 bg-white border border-slate-200 rounded-2xl h-32 text-slate-700 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"></textarea>
                 </div>
@@ -93,7 +94,8 @@
                 <div class="w-20 h-20 border-4 border-slate-100 rounded-full"></div>
                 <div class="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <p class="mt-8 text-lg font-bold text-slate-900 uppercase tracking-widest">Analyzing Alignment...</p>
+            <p class="mt-8 text-lg font-bold text-slate-900 uppercase tracking-widest">Processing Analysis...</p>
+            <p class="text-slate-500 mt-2">Cross-referencing technical skills and leadership benchmarks.</p>
         </div>
 
         <article id="results-section" class="hidden space-y-8 fade-in">
@@ -108,23 +110,23 @@
                             <span id="score-text" class="text-3xl font-black text-slate-900">0%</span>
                         </div>
                     </div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Match Accuracy</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Precision Index</p>
                 </div>
 
                 <div class="md:col-span-2 glass p-8 rounded-[2.5rem] flex flex-col justify-center">
                     <p id="visibility-badge" class="inline-block w-max px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest mb-4"></p>
                     <h3 id="verdict-display" class="text-3xl font-bold text-slate-900 leading-tight"></h3>
-                    <p class="text-slate-500 mt-4 text-sm">Strategic insight provided by Llama-3 Analysis.</p>
+                    <p class="text-slate-500 mt-4 text-sm italic">Executive alignment summary provided by Llama-3 AI Diagnostic.</p>
                 </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-6">
                 <section class="glass p-8 rounded-[2.5rem]">
-                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Keyword Gaps</h4>
+                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Skill Gap Identifiers</h4>
                     <div id="keywords-list" class="flex flex-wrap gap-2"></div>
                 </section>
                 <section class="glass p-8 rounded-[2.5rem] relative">
-                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Improvement Strategy</h4>
+                    <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Strategic Improvements</h4>
                     <div id="strategy-display" class="text-slate-600 text-md leading-relaxed mb-12"></div>
                     <button onclick="copyFullReport()" class="absolute bottom-6 right-6 bg-slate-900 text-white text-[10px] px-4 py-2 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-600 transition">
                         Copy Full Strategy
@@ -133,13 +135,49 @@
             </div>
             
             <div class="text-center pt-8">
-                <button onclick="window.location.reload()" class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-indigo-600 transition">← Reset Analysis</button>
+                <button onclick="window.location.reload()" class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-indigo-600 transition">← Restart Diagnostic</button>
             </div>
         </article>
+
+        <section id="how-it-works" class="mt-40 pt-24 border-t border-slate-200 text-center">
+            <h3 class="text-3xl font-black mb-20 text-slate-900 uppercase tracking-tighter">Diagnostic Methodology</h3>
+            <div class="grid md:grid-cols-3 gap-16">
+                <div class="space-y-4">
+                    <h5 class="font-bold text-slate-900 text-lg">01. Parsing</h5>
+                    <p class="text-slate-500 text-sm leading-relaxed">Advanced text extraction mirrors the behavior of leading Applicant Tracking Systems.</p>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="font-bold text-slate-900 text-lg">02. Alignment</h5>
+                    <p class="text-slate-500 text-sm leading-relaxed">Neural network analysis benchmarks your experience against specific job requirements.</p>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="font-bold text-slate-900 text-lg">03. Synthesis</h5>
+                    <p class="text-slate-500 text-sm leading-relaxed">The final diagnostic score is weighted by keyword frequency and seniority mapping.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="faq" class="mt-32 glass p-10 rounded-[3rem]">
+            <h3 class="text-2xl font-black mb-8 text-center text-slate-900 uppercase tracking-widest">Common Questions</h3>
+            <div class="grid md:grid-cols-2 gap-10 text-sm">
+                <div class="space-y-2">
+                    <h6 class="font-bold text-slate-900">Is this free?</h6>
+                    <p class="text-slate-500">Yes. We provide executive analysis without the subscription cost.</p>
+                </div>
+                <div class="space-y-2">
+                    <h6 class="font-bold text-slate-900">How accurate is it?</h6>
+                    <p class="text-slate-500">Our Llama-3 model uses the same semantic logic as modern recruitment software.</p>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <footer class="text-center py-16 border-t border-slate-200 text-[9px] text-slate-400 font-bold uppercase tracking-[0.6em]">
+        Professional Grade Career Diagnostics • Llama-3 Powered
+    </footer>
+
     <script>
-        // JS logic remains the same as in the previous step
+        // --- Drag & Drop Logic ---
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('cv_file');
         const fileNameDisplay = document.getElementById('file-name');
@@ -168,16 +206,19 @@
             fileNameDisplay.classList.add('text-indigo-600');
         }
 
+        // --- Diagnostic Logic ---
         async function runDiagnostic() {
             const jd = document.getElementById('jd_text').value;
             const cvText = document.getElementById('cv_text').value;
             const file = fileInput.files[0];
             const btn = document.getElementById('scan-btn');
 
+            // 1. Essential UI Refinement: Empty State Warning
             if (!jd || (!cvText && !file)) {
-                return alert("Please provide both a Job Description and your Resume.");
+                return alert("Required: Provide both job description and resume content.");
             }
 
+            // UI Transitions & Active Button State
             btn.innerText = "Scanning Resume...";
             btn.disabled = true;
             document.getElementById('input-section').classList.add('hidden');
@@ -187,10 +228,12 @@
                 const formData = new FormData(document.getElementById('upload-form'));
                 const response = await fetch('/analyze', { method: 'POST', body: formData });
                 const data = await response.json();
+
                 if (data.error) throw new Error(data.error);
+
                 renderResults(data);
             } catch (err) {
-                alert("Error: " + err.message);
+                alert("Technical Error: " + err.message);
                 window.location.reload();
             }
         }
@@ -205,16 +248,17 @@
             document.getElementById('verdict-display').innerText = data.verdict;
             document.getElementById('strategy-display').innerText = data.strategy;
 
-            let color = "#ef4444"; 
-            if (score > 40) color = "#f59e0b"; 
-            if (score > 70) color = "#10b981"; 
+            // 2. Result Clarity: Score Color Coding
+            let color = "#ef4444"; // 0-40%: Red
+            if (score > 40) color = "#f59e0b"; // 41-70%: Yellow
+            if (score > 70) color = "#10b981"; // 71-100%: Emerald
 
             scoreCircle.style.stroke = color;
             scoreCircle.style.strokeDasharray = `${circumference} ${circumference}`;
             scoreCircle.style.strokeDashoffset = circumference - (score / 100) * circumference;
 
             const badge = document.getElementById('visibility-badge');
-            badge.innerText = data.visibility + " Visibility";
+            badge.innerText = data.visibility + " Visibility Score";
             badge.style.backgroundColor = color + "15";
             badge.style.color = color;
             badge.style.border = `1px solid ${color}30`;
@@ -236,9 +280,10 @@
         function copyFullReport() {
             const strategy = document.getElementById('strategy-display').innerText;
             const keywords = Array.from(document.querySelectorAll('#keywords-list span')).map(s => s.innerText).join(', ');
-            const textToCopy = `CV STRATEGY REPORT\n\nKEYWORDS TO ADD: ${keywords}\n\nSTRATEGY: ${strategy}`;
+            const textToCopy = `CVCHECK AI REPORT\n\nMATCH SCORE: ${document.getElementById('score-text').innerText}\n\nKEYWORDS TO ADD: ${keywords}\n\nSTRATEGY: ${strategy}`;
+            
             navigator.clipboard.writeText(textToCopy).then(() => {
-                alert("Strategy and Keywords copied to clipboard!");
+                alert("Full report (Keywords + Strategy) copied to clipboard!");
             });
         }
     </script>
