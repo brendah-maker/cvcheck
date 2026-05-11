@@ -47,7 +47,6 @@ def analyze():
         return jsonify({"error": "Missing input data"}), 400
 
     try:
-        # Prompt includes technical breakdown for the Methodology cited in UI
         sys_prompt = """
         You are an elite Executive Recruiter and ATS Expert. 
         Perform a professional gap analysis between the Resume and Job Description.
@@ -80,6 +79,5 @@ def analyze():
         return jsonify({"error": "AI Analysis failed"}), 500
 
 if __name__ == "__main__":
-    # Use port from environment for Render/Heroku/Railway
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
