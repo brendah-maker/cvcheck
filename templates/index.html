@@ -17,10 +17,11 @@
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* New styling for bullet points in strategy */
         #strategy-display ul { list-style-type: none; padding: 0; }
         #strategy-display li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; }
         #strategy-display li::before { content: '→'; position: absolute; left: 0; color: #6366f1; font-weight: bold; }
+
+        #loading-screen { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(4px); }
     </style>
 </head>
 <body class="selection:bg-indigo-100">
@@ -37,6 +38,12 @@
             </div>
         </div>
     </nav>
+
+    <!-- Loading Overlay -->
+    <div id="loading-screen" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+        <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">Analyzing with Llama 3.3...</p>
+    </div>
 
     <main class="max-w-5xl mx-auto px-6 pt-16 pb-32">
         
@@ -75,7 +82,8 @@
             </form>
         </header>
 
-        <article id="results-section" class="hidden space-y-8 fade-in">
+        <!-- RESULTS SECTION -->
+        <article id="results-section" class="hidden space-y-8 fade-in mb-24">
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="glass p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
                     <div class="relative mb-4">
@@ -107,8 +115,7 @@
                 
                 <section class="glass p-8 rounded-[2.5rem] relative min-h-[300px]">
                     <h4 class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-6">Optimization Roadmap</h4>
-                    <div id="strategy-display" class="text-slate-600 text-sm leading-relaxed mb-16">
-                        </div>
+                    <div id="strategy-display" class="text-slate-600 text-sm leading-relaxed mb-16"></div>
                     <div class="absolute bottom-6 left-8 right-8 flex justify-between items-center">
                          <button onclick="copyFullReport()" class="bg-slate-900 text-white text-[10px] px-6 py-3 rounded-xl font-bold uppercase tracking-widest hover:bg-indigo-600 transition">
                             Copy Strategy
@@ -122,10 +129,91 @@
             </div>
         </article>
 
-        </main>
+        <hr class="border-slate-200 mb-24">
+
+        <!-- METHODOLOGY SECTION -->
+        <section id="how-it-works" class="space-y-12">
+            <div class="text-center">
+                <h3 class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-4">The Methodology</h3>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">How our Diagnostic works.</h2>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass p-8 rounded-[2rem] space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">01</div>
+                    <h4 class="font-bold text-slate-900">Semantic Parsing</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">Instead of simple keyword counting, Llama-3.3 analyzes the <strong>context</strong> of your experience. It understands that "Managing a team" is semantically linked to "Leadership."</p>
+                </div>
+                <div class="glass p-8 rounded-[2rem] space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">02</div>
+                    <h4 class="font-bold text-slate-900">ATS Pattern Matching</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">We simulate how modern Applicant Tracking Systems (Workday, Taleo, Greenhouse) rank candidates based on <strong>Hard Skill Density</strong> and <strong>Experience Recency</strong>.</p>
+                </div>
+                <div class="glass p-8 rounded-[2rem] space-y-4">
+                    <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">03</div>
+                    <h4 class="font-bold text-slate-900">Gap Identification</h4>
+                    <p class="text-sm text-slate-500 leading-relaxed">Our AI cross-references the JD's requirements with your CV to find missing "Core Competencies"—the precise terms recruiters use to filter the top 2% of applicants.</p>
+                </div>
+            </div>
+
+            <!-- FAQ SECTION -->
+            <div id="faq" class="pt-12 max-w-3xl mx-auto space-y-6">
+                <h3 class="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Frequently Asked Questions</h3>
+                <div class="glass p-6 rounded-2xl">
+                    <h4 class="font-bold text-sm mb-2">Is my data private?</h4>
+                    <p class="text-xs text-slate-500">Yes. We do not store your CV or JD. The text is processed via a secure API and discarded immediately after the analysis is generated.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <h4 class="font-bold text-sm mb-2">Why is my score lower than expected?</h4>
+                    <p class="text-xs text-slate-500">ATS systems are ruthless. If your CV uses creative titles or complex formatting that masks your skills, the score drops. We focus on "Parsability."</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
 
     <script>
-        // ... (Keep existing File handling logic) ...
+        // File handling
+        const cvFileInput = document.getElementById('cv_file');
+        const fileNameDisplay = document.getElementById('file-name');
+
+        cvFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.innerText = e.target.files[0].name;
+                fileNameDisplay.classList.add('text-indigo-600');
+            }
+        });
+
+        async function runDiagnostic() {
+            const formData = new FormData(document.getElementById('upload-form'));
+            const btn = document.getElementById('scan-btn');
+            const loader = document.getElementById('loading-screen');
+            
+            // Validate
+            if (!formData.get('jd_text') || (!formData.get('cv_text') && !cvFileInput.files[0])) {
+                alert("Please provide both a Job Description and a Resume.");
+                return;
+            }
+
+            btn.disabled = true;
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+                renderResults(data);
+            } catch (err) {
+                alert("Scan failed: " + err.message);
+            } finally {
+                btn.disabled = false;
+                loader.classList.add('hidden');
+            }
+        }
 
         function renderResults(data) {
             const score = data.score || 0;
@@ -136,7 +224,6 @@
             scoreText.innerText = score + "%";
             document.getElementById('verdict-display').innerText = data.verdict;
 
-            // TRANSFORM STRATEGY INTO BULLET POINTS
             const strategyDisplay = document.getElementById('strategy-display');
             const strategySteps = data.strategy.split('.').filter(s => s.trim().length > 0);
             let strategyHTML = '<ul>';
@@ -169,12 +256,16 @@
                 kwList.appendChild(el);
             });
 
-            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('input-section').classList.add('hidden');
             document.getElementById('results-section').classList.remove('hidden');
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-        
-        // ... (Keep existing copyFullReport & runDiagnostic) ...
+
+        function copyFullReport() {
+            const strategy = document.getElementById('strategy-display').innerText;
+            navigator.clipboard.writeText(strategy);
+            alert("Strategy copied to clipboard!");
+        }
     </script>
 </body>
 </html>
