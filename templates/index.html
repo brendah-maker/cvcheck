@@ -39,7 +39,6 @@
         </div>
     </nav>
 
-    <!-- Loading Overlay -->
     <div id="loading-screen" class="fixed inset-0 z-[100] hidden flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
         <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em]">Analyzing with Llama 3.3...</p>
@@ -82,7 +81,6 @@
             </form>
         </header>
 
-        <!-- RESULTS SECTION -->
         <article id="results-section" class="hidden space-y-8 fade-in mb-24">
             <div class="grid md:grid-cols-3 gap-6">
                 <div class="glass p-8 rounded-[2.5rem] flex flex-col items-center justify-center text-center">
@@ -131,7 +129,6 @@
 
         <hr class="border-slate-200 mb-24">
 
-        <!-- METHODOLOGY SECTION -->
         <section id="how-it-works" class="space-y-12">
             <div class="text-center">
                 <h3 class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] mb-4">The Methodology</h3>
@@ -156,7 +153,6 @@
                 </div>
             </div>
 
-            <!-- FAQ SECTION -->
             <div id="faq" class="pt-12 max-w-3xl mx-auto space-y-6">
                 <h3 class="text-center text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8">Frequently Asked Questions</h3>
                 <div class="glass p-6 rounded-2xl">
@@ -189,7 +185,6 @@
             const btn = document.getElementById('scan-btn');
             const loader = document.getElementById('loading-screen');
             
-            // Validate
             if (!formData.get('jd_text') || (!formData.get('cv_text') && !cvFileInput.files[0])) {
                 alert("Please provide both a Job Description and a Resume.");
                 return;
@@ -224,11 +219,21 @@
             scoreText.innerText = score + "%";
             document.getElementById('verdict-display').innerText = data.verdict;
 
+            // STRATEGY FIX: Handle both String and Array formats from AI
             const strategyDisplay = document.getElementById('strategy-display');
-            const strategySteps = data.strategy.split('.').filter(s => s.trim().length > 0);
+            let strategySteps = [];
+
+            if (Array.isArray(data.strategy)) {
+                strategySteps = data.strategy;
+            } else if (typeof data.strategy === 'string') {
+                strategySteps = data.strategy.split('.').filter(s => s.trim().length > 0);
+            }
+
             let strategyHTML = '<ul>';
             strategySteps.forEach(step => {
-                strategyHTML += `<li>${step.trim()}.</li>`;
+                const cleanStep = step.trim();
+                const punctuation = cleanStep.endsWith('.') ? '' : '.';
+                strategyHTML += `<li>${cleanStep}${punctuation}</li>`;
             });
             strategyHTML += '</ul>';
             strategyDisplay.innerHTML = strategyHTML;
