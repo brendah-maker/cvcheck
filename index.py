@@ -18,10 +18,9 @@ def index():
     global visitor_count
     visitor_count += 1
     
-    # Safety check for device info (sometimes it can be empty)
+    # Safety check for device info
     platform = request.user_agent.platform if request.user_agent.platform else "Unknown Device"
     
-    # This combines your logic into ONE function
     print(f"--- VISIT #{visitor_count} | IP: {request.remote_addr} | Device: {platform} ---")
     return render_template('index.html')
 
@@ -48,7 +47,7 @@ def analyze():
         return jsonify({"error": "Missing input data"}), 400
 
     try:
-        # Strict instructions for consistency
+        # Prompt includes technical breakdown for the Methodology cited in UI
         sys_prompt = """
         You are an elite Executive Recruiter and ATS Expert. 
         Perform a professional gap analysis between the Resume and Job Description.
@@ -81,6 +80,6 @@ def analyze():
         return jsonify({"error": "AI Analysis failed"}), 500
 
 if __name__ == "__main__":
-    # Use port from environment for Render/Heroku
+    # Use port from environment for Render/Heroku/Railway
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
